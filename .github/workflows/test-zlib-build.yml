@@ -30,8 +30,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install MinGW (for windres)
-      run: sudo apt-get update && sudo apt-get install -y mingw-w64
+    - name: Debug Tools
+      if: matrix.compiler.rid == 'win-x86' || matrix.compiler.rid == 'win-x86'
+      run: which windres
 
     - name: Cache zlib-${{ env.ZLIB_VERSION }}
       id: cache-zlib
