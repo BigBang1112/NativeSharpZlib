@@ -17,7 +17,7 @@ jobs:
     steps:
     - name: Download zlib source
       run: |
-        curl -L https://zlib.net/fossils/zlib-${{ env.ZLIB_VERSION }}.tar.gz
+        Invoke-WebRequest -Uri "https://www.zlib.net/fossils/zlib-${{ env.ZLIB_VERSION }}.tar.gz" -OutFile "zlib.tar.gz"
         tar -xzf zlib-${{ env.ZLIB_VERSION }}.tar.gz
         
     - name: Set up CMake
