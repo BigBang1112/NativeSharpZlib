@@ -30,6 +30,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Install MinGW (for windres)
+      run: sudo apt-get update && sudo apt-get install -y mingw-w64
+
     - name: Cache zlib-${{ env.ZLIB_VERSION }}
       id: cache-zlib
       uses: actions/cache@v4
