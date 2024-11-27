@@ -35,7 +35,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y mingw-w64
-
+        echo "/usr/bin/mingw-w64-$(uname -m)-" >> $GITHUB_PATH
 
     - name: Cache zlib-${{ env.ZLIB_VERSION }}
       id: cache-zlib
