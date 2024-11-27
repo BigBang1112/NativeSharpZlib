@@ -12,7 +12,7 @@ permissions:
 jobs:
   compile-zlib-windows:
     name: Compile zlib on Windows
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - name: Setup MSYS2
