@@ -1,0 +1,58 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+env:
+  ZLIB_VERSION: "1.2.12"
+
+permissions:
+  contents: read
+
+jobs:
+  compile-zlib:
+    name: Compile zlib (${{ matrix.compiler.rid }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        compiler:
+          - {target: windows-static-x86, src: zlib.dll, dst: zlib.dll, rid: win-x86}
+          - {target: windows-static-x64, src: zlib.dll, dst: zlib.dll, rid: win-x64}
+          - {target: linux-x64, src: libz.so.1.2.12, dst: libz.so, rid: linux-x64}
+          - {target: linux-armv6, src: libz.so.1.2.12, dst: libz.so, rid: linux-arm}
+          - {target: linux-arm64, src: libz.so.1.2.12, dst: libz.so, rid: linux-arm64}
+          - {target: web-wasm, src: libz.a, dst: libz.a, rid: browser-wasm}
+    
+    container:
+      image: dockcross/${{ matrix.compiler.target }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Cache zlib-${{ env.ZLIB_VERSION }}
+      id: cache-zlib
+      uses: actions/cache@v4
+      with:
+        path: runtimes
+        key: zlib-${{ env.ZLIB_VERSION }}-${{ matrix.compiler.rid }}
+
+    - name: Download and extract zlib-${{ env.ZLIB_VERSION }}
+      if: steps.cache-zlib.outputs.cache-hit != 'true'
+      run: | 
+        wget https://www.zlib.net/fossils/zlib-${{ env.ZLIB_VERSION }}.tar.gz
+        tar -xzvf zlib-${{ env.ZLIB_VERSION }}.tar.gz
+    
+    - name: Compile zlib-${{ env.ZLIB_VERSION }}
+      if: steps.cache-zlib.outputs.cache-hit != 'true'
+      run: |
+        cmake -B build/${{ matrix.compiler.target }} -S zlib-${{ env.ZLIB_VERSION }}/ -G Ninja -DENABLE_STATIC=0 -DENABLE_SHARED=1
+        ninja -C build/${{ matrix.compiler.target }} zlib_shared_lib
+        mkdir -p runtimes/${{ matrix.compiler.rid }}/native
+        cp build/${{ matrix.compiler.target }}/${{ matrix.compiler.src }} runtimes/${{ matrix.compiler.rid }}/native/${{ matrix.compiler.dst }}
+
+    - name: Upload zlib-${{ env.ZLIB_VERSION }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: zlib-${{ env.ZLIB_VERSION }}-${{ matrix.compiler.rid }}
+        path: runtimes
