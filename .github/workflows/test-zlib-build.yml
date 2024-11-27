@@ -1,4 +1,4 @@
-name: Release
+name: Test zlib build
 
 on:
   workflow_dispatch:
