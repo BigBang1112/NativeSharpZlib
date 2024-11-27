@@ -2,82 +2,111 @@
 
 namespace NativeSharpZlib;
 
-internal static partial class ZlibNative
+internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
 {
     private const string Library = "zlib";
+    private const string Version = "1.2.5";
+
+    private readonly ZStream stream = stream;
+
+    internal Status DeflateInit(int level = 8)
+    {
+        return deflateInit_(stream, level, Version, Marshal.SizeOf(stream));
+    }
+
+    internal Status Deflate(FlushType flush)
+    {
+        return deflate(stream, flush);
+    }
+
+    internal Status DeflateEnd()
+    {
+        return deflateEnd(stream);
+    }
+
+    internal Status InflateInit()
+    {
+        return inflateInit_(stream, Version, Marshal.SizeOf(stream));
+    }
+
+    internal Status Inflate(FlushType flush)
+    {
+        return inflate(stream, flush);
+    }
+
+    internal Status InflateEnd()
+    {
+        return inflateEnd(stream);
+    }
 
 #if NET8_0_OR_GREATER
     [LibraryImport(Library, StringMarshalling = StringMarshalling.Utf8)]
-    private static partial Status deflateInit_(Stream stream, int level, string version, int stream_size);
+    private static partial Status deflateInit_(ZStream stream, int level, string version, int stream_size);
 #else
     [DllImport(Library)]
-    private static extern Status deflateInit_(Stream stream, int level, string version, int stream_size);
+    private static extern Status deflateInit_(ZStream stream, int level, string version, int stream_size);
 #endif
 
 #if NET8_0_OR_GREATER
     [LibraryImport(Library)]
-    private static partial Status deflate(Stream stream, FlushType flush);
+    private static partial Status deflate(ZStream stream, FlushType flush);
 #else
     [DllImport(Library)]
-    private static extern Status deflate(Stream stream, FlushType flush);
+    private static extern Status deflate(ZStream stream, FlushType flush);
 #endif
 
 #if NET8_0_OR_GREATER
     [LibraryImport(Library)]
-    private static partial Status deflateEnd(Stream stream);
+    private static partial Status deflateEnd(ZStream stream);
 #else
     [DllImport(Library)]
-    private static extern Status deflateEnd(Stream stream);
+    private static extern Status deflateEnd(ZStream stream);
 #endif
 
 #if NET8_0_OR_GREATER
     [LibraryImport(Library, StringMarshalling = StringMarshalling.Utf8)]
-    private static partial Status inflateInit_(Stream stream, string version, int stream_size);
+    private static partial Status inflateInit_(ZStream stream, string version, int stream_size);
 #else
     [DllImport(Library)]
-    private static extern Status inflateInit_(Stream stream, string version, int stream_size);
+    private static extern Status inflateInit_(ZStream stream, string version, int stream_size);
 #endif
 
 #if NET8_0_OR_GREATER
     [LibraryImport(Library)]
-    private static partial Status inflate(Stream stream, FlushType flush);
+    private static partial Status inflate(ZStream stream, FlushType flush);
 #else
     [DllImport(Library)]
-    private static extern Status inflate(Stream stream, FlushType flush);
+    private static extern Status inflate(ZStream stream, FlushType flush);
 #endif
 
 #if NET8_0_OR_GREATER
     [LibraryImport(Library)]
-    private static partial Status inflateEnd(Stream stream);
+    private static partial Status inflateEnd(ZStream stream);
 #else
     [DllImport(Library)]
-    private static extern Status inflateEnd(Stream stream);
+    private static extern Status inflateEnd(ZStream stream);
 #endif
 
     [StructLayout(LayoutKind.Sequential)]
-    private struct Stream
+    internal struct ZStream
     {
         public IntPtr next_in;
         public int avail_in;
         public int total_in;
-
         public IntPtr next_out;
         public int avail_out;
         public int total_out;
-
         public IntPtr msg;
         public IntPtr state;
-
         public IntPtr zalloc;
         public IntPtr zfree;
         public IntPtr opaque;
-
         public int data_type;
         public uint adler;
         public uint reserved;
     }
 
-    private enum FlushType
+    internal enum FlushType
     {
         Z_NO_FLUSH = 0,
         Z_PARTIAL_FLUSH = 1,
@@ -88,7 +117,7 @@ internal static partial class ZlibNative
         Z_TREES = 6
     }
 
-    private enum Status
+    internal enum Status
     {
         Z_OK = 0,
         Z_STREAM_END = 1,
