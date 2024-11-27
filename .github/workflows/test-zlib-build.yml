@@ -26,8 +26,7 @@ jobs:
     - name: Configure and Build zlib
       run: |
         cd zlib-${{ env.ZLIB_VERSION }}
-        ./configure
-        make -f win32/Makefile.gcc
+        make -f win32/Makefile.gcc SHARED_MODE=1
 
   compile-zlib-dockcross:
     name: Compile zlib (${{ matrix.compiler.rid }}) with Dockcross
@@ -56,7 +55,7 @@ jobs:
 
     - name: Download and extract zlib-${{ env.ZLIB_VERSION }}
       if: steps.cache-zlib.outputs.cache-hit != 'true'
-      run: | 
+      run: |
         wget https://www.zlib.net/fossils/zlib-${{ env.ZLIB_VERSION }}.tar.gz
         tar -xzvf zlib-${{ env.ZLIB_VERSION }}.tar.gz
         rm zlib-${{ env.ZLIB_VERSION }}/zconf.h
