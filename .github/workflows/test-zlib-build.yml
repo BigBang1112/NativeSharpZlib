@@ -47,11 +47,10 @@ jobs:
     - name: Compile zlib-${{ env.ZLIB_VERSION }}
       if: steps.cache-zlib.outputs.cache-hit != 'true'
       run: |
-        cmake -B build/${{ matrix.compiler.target }} -S zlib-${{ env.ZLIB_VERSION }}/ -G Ninja -DBUILD_SHARED_LIBS=ON
-        ninja -C build/${{ matrix.compiler.target }} zlib
-        mkdir -p runtimes/${{ matrix.compiler.rid }}/native
-        cp build/${{ matrix.compiler.target }}/${{ matrix.compiler.src }} runtimes/${{ matrix.compiler.rid }}/native/${{ matrix.compiler.dst }}
-
+        cd zlib-${{ env.ZLIB_VERSION }}
+        ./configure
+        make -DBUILD_SHARED_LIBS=ON
+        
     - name: Upload zlib-${{ env.ZLIB_VERSION }}
       uses: actions/upload-artifact@v4
       with:
