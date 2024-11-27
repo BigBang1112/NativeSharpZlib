@@ -47,7 +47,7 @@ jobs:
     - name: Compile zlib-${{ env.ZLIB_VERSION }}
       if: steps.cache-zlib.outputs.cache-hit != 'true'
       run: |
-        cmake -B build/${{ matrix.compiler.target }} -S zlib-${{ env.ZLIB_VERSION }}/ -G Ninja -DENABLE_STATIC=0 -DENABLE_SHARED=1
+        cmake -B build/${{ matrix.compiler.target }} -S zlib-${{ env.ZLIB_VERSION }}/ -G Ninja -DBUILD_SHARED_LIBS=ON
         ninja -C build/${{ matrix.compiler.target }} zlib
         mkdir -p runtimes/${{ matrix.compiler.rid }}/native
         cp build/${{ matrix.compiler.target }}/${{ matrix.compiler.src }} runtimes/${{ matrix.compiler.rid }}/native/${{ matrix.compiler.dst }}
