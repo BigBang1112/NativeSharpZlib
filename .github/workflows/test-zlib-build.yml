@@ -26,10 +26,8 @@ jobs:
     - name: Configure and Build zlib
       run: |
         cd zlib-${{ env.ZLIB_VERSION }}
-        mkdir build
-        cd build
-        cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
-        cmake --build . --config Release
+        ./configure
+        make -f win32/Makefile.gcc
 
   compile-zlib-dockcross:
     name: Compile zlib (${{ matrix.compiler.rid }}) with Dockcross
