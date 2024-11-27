@@ -10,15 +10,40 @@ permissions:
   contents: read
 
 jobs:
-  compile-zlib:
-    name: Compile zlib (${{ matrix.compiler.rid }})
+  compile-zlib-windows:
+    name: Compile zlib on Windows
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Setup MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+      update: true
+        install: >-
+          base-devel
+          gcc
+          make
+          yasm
+
+    - name: Download zlib
+      run: |
+        curl -LO https://zlib.net/fossils/zlib-${{ env.ZLIB_VERSION }}.tar.gz
+        tar -xzf zlib-${{ env.ZLIB_VERSION }}.tar.gz
+        cd zlib-${{ env.ZLIB_VERSION }}
+
+    - name: Compile zlib
+      run: |
+        cd zlib-${{ env.ZLIB_VERSION }}
+        MSYS2_ARG_CONV_EXCL="--prefix=" ./configure --prefix=/mingw64
+        make
+
+  compile-zlib-dockcross:
+    name: Compile zlib (${{ matrix.compiler.rid }}) with Dockcross
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
         compiler:
-          - {target: windows-static-x86, src: libzlib.dll, dst: zlib.dll, rid: win-x86}
-          - {target: windows-static-x64, src: libzlib.dll, dst: zlib.dll, rid: win-x64}
           - {target: linux-x64, src: libz.so, dst: zlib.so, rid: linux-x64}
           - {target: linux-armv6, src: libz.so, dst: zlib.so, rid: linux-arm}
           - {target: linux-arm64, src: libz.so, dst: zlib.so, rid: linux-arm64}
@@ -29,12 +54,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-
-    - name: Install MinGW
-      if: matrix.compiler.rid == 'win-x86' || matrix.compiler.rid == 'win-x64'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y mingw-w64
 
     - name: Cache zlib-${{ env.ZLIB_VERSION }}
       id: cache-zlib
@@ -50,19 +69,13 @@ jobs:
         tar -xzvf zlib-${{ env.ZLIB_VERSION }}.tar.gz
         rm zlib-${{ env.ZLIB_VERSION }}/zconf.h
     
-    - name: Compile zlib-${{ env.ZLIB_VERSION }} on Windows
-      if: steps.cache-zlib.outputs.cache-hit != 'true' && (matrix.compiler.rid == 'win-x86' || matrix.compiler.rid == 'win-x64')
+    - name: Compile zlib-${{ env.ZLIB_VERSION }}
+      if: steps.cache-zlib.outputs.cache-hit != 'true'
       run: |
-        cd zlib-${{ env.ZLIB_VERSION }}
-        ./configure
-        make -f win32/Makefile.gcc
-    
-    - name: Compile zlib-${{ env.ZLIB_VERSION }} on Linux
-      if: steps.cache-zlib.outputs.cache-hit != 'true' && matrix.compiler.rid != 'win-x86' && matrix.compiler.rid != 'win-x64'
-      run: |
-        cd zlib-${{ env.ZLIB_VERSION }}
-        ./configure
-        make
+        cmake -B build/${{ matrix.compiler.target }} -S zlib-${{ env.ZLIB_VERSION }}/ -G Ninja -DBUILD_SHARED_LIBS=ON
+        ninja -C build/${{ matrix.compiler.target }} zlib
+        mkdir -p runtimes/${{ matrix.compiler.rid }}/native
+        cp build/${{ matrix.compiler.target }}/${{ matrix.compiler.src }} runtimes/${{ matrix.compiler.rid }}/native/${{ matrix.compiler.dst }}
         
     - name: Upload zlib-${{ env.ZLIB_VERSION }}
       uses: actions/upload-artifact@v4
