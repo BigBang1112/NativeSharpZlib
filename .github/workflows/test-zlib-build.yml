@@ -20,7 +20,6 @@ jobs:
         Invoke-WebRequest -Uri "https://www.zlib.net/fossils/zlib-${{ env.ZLIB_VERSION }}.tar.gz" -OutFile "zlib.tar.gz"
         tar -xzf zlib.tar.gz
         rm zlib-${{ env.ZLIB_VERSION }}/zconf.h
-        rm zlib-${{ env.ZLIB_VERSION }}/win32/zlib1.rc
         
     - name: Set up CMake
       uses: jwlawson/actions-setup-cmake@v2
@@ -32,8 +31,8 @@ jobs:
         cd zlib-${{ env.ZLIB_VERSION }}
         mkdir build
         cd build
-        cmake -G "MinGW Makefiles" -D BUILD_SHARED_LIBS=ON ..
-        mingw32-make
+        cmake -G "Visual Studio 12 2013" -A x64 ..
+        cmake --build .
 
   compile-zlib-dockcross:
     name: Compile zlib (${{ matrix.compiler.rid }}) with Dockcross
