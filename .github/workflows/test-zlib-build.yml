@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 env:
-  ZLIB_VERSION: "1.2.12"
+  ZLIB_VERSION: "1.2.5"
 
 permissions:
   contents: read
@@ -17,11 +17,11 @@ jobs:
     strategy:
       matrix:
         compiler:
-          - {target: windows-static-x86, src: zlib.dll, dst: zlib.dll, rid: win-x86}
-          - {target: windows-static-x64, src: zlib.dll, dst: zlib.dll, rid: win-x64}
-          - {target: linux-x64, src: libz.so.1.2.12, dst: libz.so, rid: linux-x64}
-          - {target: linux-armv6, src: libz.so.1.2.12, dst: libz.so, rid: linux-arm}
-          - {target: linux-arm64, src: libz.so.1.2.12, dst: libz.so, rid: linux-arm64}
+          - {target: windows-static-x86, src: libzlib.dll, dst: zlib.dll, rid: win-x86}
+          - {target: windows-static-x64, src: libzlib.dll, dst: zlib.dll, rid: win-x64}
+          - {target: linux-x64, src: libz.so, dst: zlib.so, rid: linux-x64}
+          - {target: linux-armv6, src: libz.so, dst: zlib.so, rid: linux-arm}
+          - {target: linux-arm64, src: libz.so, dst: zlib.so, rid: linux-arm64}
           - {target: web-wasm, src: libz.a, dst: libz.a, rid: browser-wasm}
     
     container:
