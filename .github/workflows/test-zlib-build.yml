@@ -22,7 +22,9 @@ jobs:
         rm zlib-${{ env.ZLIB_VERSION }}/zconf.h
         
     - name: Set up CMake
-      uses: jwlawson/actions-setup-cmake@v1
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        use-32bit: true
 
     - name: Configure and Build zlib
       run: |
