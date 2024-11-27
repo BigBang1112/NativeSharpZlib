@@ -42,6 +42,7 @@ jobs:
       run: | 
         wget https://www.zlib.net/fossils/zlib-${{ env.ZLIB_VERSION }}.tar.gz
         tar -xzvf zlib-${{ env.ZLIB_VERSION }}.tar.gz
+        rm zlib-${{ env.ZLIB_VERSION }}/zconf.h
     
     - name: Compile zlib-${{ env.ZLIB_VERSION }}
       if: steps.cache-zlib.outputs.cache-hit != 'true'
