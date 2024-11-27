@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   compile-zlib-windows:
-    name: Compile zlib
+    name: Compile zlib (${{ matrix.compiler.rid }})
     runs-on: windows-latest
 
     strategy:
@@ -40,7 +40,7 @@ jobs:
         cmake -G "Visual Studio 17 2022" -A ${{ matrix.compiler.arch }} -DCMAKE_BUILD_TYPE=Release ..
         cmake --build . --config Release
         mkdir -p runtimes/${{ matrix.compiler.rid }}/native
-        cp Release/zlib1.dll runtimes/${{ matrix.compiler.rid }}/native/zlib.dll
+        cp Release/zlib1.dll ../runtimes/${{ matrix.compiler.rid }}/native/zlib.dll
         
     - name: Upload zlib-${{ env.ZLIB_VERSION }}
       uses: actions/upload-artifact@v4
