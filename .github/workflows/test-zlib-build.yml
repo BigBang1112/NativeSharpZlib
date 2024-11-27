@@ -15,13 +15,13 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Set up CMake
-      uses: jwlawson/actions-setup-cmake@v1
-
     - name: Download zlib source
       run: |
         curl -L https://zlib.net/fossils/zlib-${{ env.ZLIB_VERSION }}.tar.gz
         tar -xzf zlib-${{ env.ZLIB_VERSION }}.tar.gz
+        
+    - name: Set up CMake
+      uses: jwlawson/actions-setup-cmake@v1
 
     - name: Configure and Build zlib
       run: |
