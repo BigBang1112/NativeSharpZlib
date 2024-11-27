@@ -14,6 +14,12 @@ jobs:
     name: Compile zlib on Windows
     runs-on: windows-latest
 
+    strategy:
+      matrix:
+        compiler:
+        - {arch: Win32, rid: win-x86}
+        - {arch: x64, rid: win-x64}
+
     steps:
     - name: Download zlib source
       run: |
@@ -31,8 +37,8 @@ jobs:
         cd zlib-${{ env.ZLIB_VERSION }}
         mkdir build
         cd build
-        cmake -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release ..
-        cmake --build .
+        cmake -G "Visual Studio 17 2022" -A ${{ matrix.compiler.arch }} -DCMAKE_BUILD_TYPE=Release ..
+        cmake --build . --config Release
 
   compile-zlib-dockcross:
     name: Compile zlib (${{ matrix.compiler.rid }}) with Dockcross
