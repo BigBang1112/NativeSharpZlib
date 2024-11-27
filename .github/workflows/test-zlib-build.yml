@@ -19,7 +19,6 @@ jobs:
       run: |
         Invoke-WebRequest -Uri "https://www.zlib.net/fossils/zlib-${{ env.ZLIB_VERSION }}.tar.gz" -OutFile "zlib.tar.gz"
         tar -xzf zlib.tar.gz
-        rm zlib-${{ env.ZLIB_VERSION }}/zconf.h
         
     - name: Set up CMake
       uses: jwlawson/actions-setup-cmake@v1
@@ -27,7 +26,10 @@ jobs:
     - name: Configure and Build zlib
       run: |
         cd zlib-${{ env.ZLIB_VERSION }}
-        make -f win32/Makefile.gcc SHARED_MODE=1
+        mkdir build
+        cd build
+        cmake -G "MinGW Makefiles" -D BUILD_SHARED_LIBS=ON ..
+        mingw32-make
 
   compile-zlib-dockcross:
     name: Compile zlib (${{ matrix.compiler.rid }}) with Dockcross
