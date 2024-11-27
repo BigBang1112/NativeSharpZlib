@@ -34,8 +34,8 @@ jobs:
     - name: Compile zlib
       run: |
         cd zlib-${{ env.ZLIB_VERSION }}
-        MSYS2_ARG_CONV_EXCL="--prefix=" ./configure --prefix=/mingw64
-        make
+        ./configure
+        make -f win32/Makefile.gcc
 
   compile-zlib-dockcross:
     name: Compile zlib (${{ matrix.compiler.rid }}) with Dockcross
