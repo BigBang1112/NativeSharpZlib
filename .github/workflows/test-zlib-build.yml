@@ -15,27 +15,21 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Setup MSYS2
-      uses: msys2/setup-msys2@v2
-      with:
-        update: true
-        install: >-
-          base-devel
-          gcc
-          make
-          yasm
+    - name: Set up CMake
+      uses: jwlawson/actions-setup-cmake@v1
 
-    - name: Download zlib
+    - name: Download zlib source
       run: |
-        curl -LO https://zlib.net/fossils/zlib-${{ env.ZLIB_VERSION }}.tar.gz
+        curl -L https://zlib.net/fossils/zlib-${{ env.ZLIB_VERSION }}.tar.gz
         tar -xzf zlib-${{ env.ZLIB_VERSION }}.tar.gz
-        cd zlib-${{ env.ZLIB_VERSION }}
 
-    - name: Compile zlib
+    - name: Configure and Build zlib
       run: |
         cd zlib-${{ env.ZLIB_VERSION }}
-        ./configure
-        make -f win32/Makefile.gcc
+        mkdir build
+        cd build
+        cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
+        cmake --build . --config Release
 
   compile-zlib-dockcross:
     name: Compile zlib (${{ matrix.compiler.rid }}) with Dockcross
