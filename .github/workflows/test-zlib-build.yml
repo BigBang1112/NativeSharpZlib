@@ -128,7 +128,7 @@ jobs:
     
     - name: Copy native lib to test project
       run: |
-        cp -r runtimes/linux-x64/native/* NativeSharpZlib.Tests/bin/Release/net9.0
+        cp -r runtimes/linux-x64/native/* NativeSharpZlib.Tests/bin/Release/net8.0
         cp -r runtimes/linux-x64/native/* NativeSharpZlib.Tests/bin/Release/net9.0
       
     - name: Test
