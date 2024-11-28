@@ -127,7 +127,9 @@ jobs:
       run: dotnet build -c Release --no-restore /p:ContinuousIntegrationBuild=true
     
     - name: Copy native lib to test project
-      run: cp -r runtimes/linux-x64/native/* test/SharpLzo.Tests/bin/Release/net8.0
+      run: |
+        cp -r runtimes/linux-x64/native/* NativeSharpZlib.Tests/bin/Release/net9.0
+        cp -r runtimes/linux-x64/native/* NativeSharpZlib.Tests/bin/Release/net9.0
       
     - name: Test
       run: dotnet test -c Release --no-build --verbosity normal
