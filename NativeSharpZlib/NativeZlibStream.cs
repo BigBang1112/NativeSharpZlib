@@ -212,12 +212,12 @@ public class NativeZlibStream : Stream
 
     private void FlushDeflateOutput(bool flushFinalBlock)
     {
-        bool finished;
-        do
+        var finished = false;
+        while (zlibNative.AvailIn > 0 || (flushFinalBlock && !finished))
         {
-            int deflatedBytes = DeflateData(compressedBuffer, 0, CompressedBlockSize, flushFinalBlock, out finished);
+            var deflatedBytes = DeflateData(compressedBuffer, 0, CompressedBlockSize, flushFinalBlock, out finished);
             stream.Write(compressedBuffer, 0, deflatedBytes);
-        } while (zlibNative.AvailIn > 0 || (flushFinalBlock && !finished));
+        }
     }
 
     protected override void Dispose(bool disposing)
@@ -232,7 +232,7 @@ public class NativeZlibStream : Stream
                 {
                     if (uncompressedIndex > 0)
                     {
-                        CompressBuffer(); // Final flush
+                        CompressBuffer();
                     }
 
                     FlushDeflateOutput(flushFinalBlock: true);
