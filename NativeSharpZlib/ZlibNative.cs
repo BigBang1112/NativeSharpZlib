@@ -7,7 +7,7 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
     private const string Library = "zlib";
     private const string Version = "1.2.5";
 
-    private ZStream stream = stream;
+    private readonly ZStream stream = stream;
 
     public int AvailIn
     {
@@ -65,56 +65,26 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
         return ThrowWhenNotOk(inflateEnd(stream));
     }
 
-#if NET8_0_OR_GREATER
-    [LibraryImport(Library, StringMarshalling = StringMarshalling.Utf8)]
-    private static partial Status deflateInit_(ZStream stream, int level, string version, int stream_size);
-#else
     [DllImport(Library)]
     private static extern Status deflateInit_(ZStream stream, int level, string version, int stream_size);
-#endif
 
-#if NET8_0_OR_GREATER
-    [LibraryImport(Library)]
-    private static partial Status deflate(ZStream stream, FlushType flush);
-#else
     [DllImport(Library)]
     private static extern Status deflate(ZStream stream, FlushType flush);
-#endif
 
-#if NET8_0_OR_GREATER
-    [LibraryImport(Library)]
-    private static partial Status deflateEnd(ZStream stream);
-#else
     [DllImport(Library)]
     private static extern Status deflateEnd(ZStream stream);
-#endif
 
-#if NET8_0_OR_GREATER
-    [LibraryImport(Library, StringMarshalling = StringMarshalling.Utf8)]
-    private static partial Status inflateInit_(ZStream stream, string version, int stream_size);
-#else
     [DllImport(Library)]
     private static extern Status inflateInit_(ZStream stream, string version, int stream_size);
-#endif
 
-#if NET8_0_OR_GREATER
-    [LibraryImport(Library)]
-    private static partial Status inflate(ZStream stream, FlushType flush);
-#else
     [DllImport(Library)]
     private static extern Status inflate(ZStream stream, FlushType flush);
-#endif
 
-#if NET8_0_OR_GREATER
-    [LibraryImport(Library)]
-    private static partial Status inflateEnd(ZStream stream);
-#else
     [DllImport(Library)]
     private static extern Status inflateEnd(ZStream stream);
-#endif
 
     [StructLayout(LayoutKind.Sequential)]
-    internal struct ZStream
+    internal class ZStream
     {
         public IntPtr next_in;
         public int avail_in;

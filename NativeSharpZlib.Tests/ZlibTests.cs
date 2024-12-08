@@ -9,10 +9,11 @@ public class ZlibTests
     public void Test()
     {
         using var stream = new MemoryStream();
-        using var zlibStream = new NativeZlibStream(stream, CompressionMode.Compress);
         var data = Encoding.UTF8.GetBytes("Hello, World!");
-        zlibStream.Write(data, 0, data.Length);
-        zlibStream.Flush();
+        using (var zlibStream = new NativeZlibStream(stream, CompressionMode.Compress, leaveOpen: true))
+        {
+            zlibStream.Write(data, 0, data.Length);
+        }
         stream.Position = 0;
         using var zlibStream2 = new NativeZlibStream(stream, CompressionMode.Decompress);
         var buffer = new byte[256];

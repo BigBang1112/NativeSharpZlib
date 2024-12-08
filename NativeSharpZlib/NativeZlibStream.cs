@@ -12,6 +12,7 @@ public class NativeZlibStream : Stream
 
     private readonly Stream stream;
     private readonly CompressionMode mode;
+    private readonly bool leaveOpen;
     private readonly ZlibNative zlibNative;
     private readonly byte[] compressedBuffer = new byte[CompressedBlockSize];
     private readonly byte[] uncompressedBuffer = new byte[UncompressedBlockSize];
@@ -33,10 +34,11 @@ public class NativeZlibStream : Stream
         set => throw new NotSupportedException();
     }
 
-    public NativeZlibStream(Stream stream, CompressionMode mode)
+    public NativeZlibStream(Stream stream, CompressionMode mode, bool leaveOpen = false)
     {
         this.stream = stream;
         this.mode = mode;
+        this.leaveOpen = leaveOpen;
 
         zlibNative = new ZlibNative();
 
@@ -111,7 +113,10 @@ public class NativeZlibStream : Stream
         }
     }
 
-    public override void Flush() { }
+    public override void Flush()
+    {
+        
+    }
 
     public override long Seek(long offset, SeekOrigin origin)
     {
@@ -167,11 +172,11 @@ public class NativeZlibStream : Stream
         Marshal.Copy(buffer, offset, compressedBufferPtr, count);
     }
 
-    private void SetDeflateInput(byte[] buffer, int offset, int length)
+    private void SetDeflateInput(byte[] buffer, int offset, int count)
     {
-        zlibNative.AvailIn = length;
+        zlibNative.AvailIn = count;
         zlibNative.NextIn = uncompressedBufferPtr;
-        Marshal.Copy(buffer, offset, uncompressedBufferPtr, length);
+        Marshal.Copy(buffer, offset, uncompressedBufferPtr, count);
     }
 
     private int InflateData(byte[] buffer, int offset, int count, out bool streamEnd)
@@ -223,12 +228,20 @@ public class NativeZlibStream : Stream
         {
             if (disposing)
             {
-                if (mode == CompressionMode.Compress && uncompressedIndex > 0)
+                if (mode == CompressionMode.Compress)
                 {
-                    CompressBuffer(); // Final flush
+                    if (uncompressedIndex > 0)
+                    {
+                        CompressBuffer(); // Final flush
+                    }
+
+                    FlushDeflateOutput(flushFinalBlock: true);
                 }
 
-                stream?.Dispose();
+                if (!leaveOpen)
+                {
+                    stream.Dispose();
+                }
             }
 
             if (mode == CompressionMode.Compress)
