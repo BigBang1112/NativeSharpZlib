@@ -21,18 +21,29 @@ jobs:
         - {arch: x64, rid: win-x64}
 
     steps:
+    
+    - name: Cache zlib-${{ env.ZLIB_VERSION }}
+      id: cache-zlib
+      uses: actions/cache@v4
+      with:
+        path: build/runtimes
+        key: zlib-${{ env.ZLIB_VERSION }}-${{ matrix.compiler.rid }}
+    
     - name: Download zlib source
+      if: steps.cache-zlib.outputs.cache-hit != 'true'
       run: |
         Invoke-WebRequest -Uri "https://www.zlib.net/fossils/zlib-${{ env.ZLIB_VERSION }}.tar.gz" -OutFile "zlib.tar.gz"
         tar -xzf zlib.tar.gz
         rm zlib-${{ env.ZLIB_VERSION }}/zconf.h
         
     - name: Set up CMake
+      if: steps.cache-zlib.outputs.cache-hit != 'true'
       uses: jwlawson/actions-setup-cmake@v2
       with:
         use-32bit: true
 
-    - name: Configure and Build zlib
+    - name: Build zlib
+      if: steps.cache-zlib.outputs.cache-hit != 'true'
       run: |
         cd zlib-${{ env.ZLIB_VERSION }}
         mkdir build
@@ -127,7 +138,9 @@ jobs:
       run: dotnet build -c Release --no-restore /p:ContinuousIntegrationBuild=true
     
     - name: Copy native lib to test project
-      run: cp -r runtimes/linux-x64/native/* test/SharpLzo.Tests/bin/Release/net8.0
+      run: |
+        cp -r runtimes/linux-x64/native/* NativeSharpZlib.Tests/bin/Release/net8.0
+        cp -r runtimes/linux-x64/native/* NativeSharpZlib.Tests/bin/Release/net9.0
       
     - name: Test
       run: dotnet test -c Release --no-build --verbosity normal
