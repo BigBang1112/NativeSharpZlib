@@ -109,7 +109,11 @@ jobs:
     needs: [compile-zlib-windows, compile-zlib-dockcross]
 
     name: Build and Test
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
     
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -137,10 +141,17 @@ jobs:
     - name: Build
       run: dotnet build -c Release --no-restore /p:ContinuousIntegrationBuild=true
     
-    - name: Copy native lib to test project
+    - name: Copy native lib to test project (Linux)
+      if: matrix.os == 'ubuntu-latest'
       run: |
         cp -r runtimes/linux-x64/native/* NativeSharpZlib.Tests/bin/Release/net8.0
         cp -r runtimes/linux-x64/native/* NativeSharpZlib.Tests/bin/Release/net9.0
+    
+    - name: Copy native lib to test project (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        Copy-Item -Path 'runtimes/win-x64/native/*' -Destination 'NativeSharpZlib.Tests/bin/Release/net8.0' -Recurse
+        Copy-Item -Path 'runtimes/win-x64/native/*' -Destination 'NativeSharpZlib.Tests/bin/Release/net9.0' -Recurse
       
     - name: Test
       run: dotnet test -c Release --no-build --verbosity normal
