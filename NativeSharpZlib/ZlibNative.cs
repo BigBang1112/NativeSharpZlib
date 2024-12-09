@@ -38,7 +38,7 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
 
     internal Status DeflateInit(int level = 8)
     {
-        return ThrowWhenNotOk(deflateInit_(ref stream, level, Version, 56));
+        return ThrowWhenNotOk(deflateInit_(ref stream, level, Version, Marshal.SizeOf<ZStream>()));
     }
 
     internal Status Deflate(FlushType flush)
@@ -53,7 +53,7 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
 
     internal Status InflateInit()
     {
-        return ThrowWhenNotOk(inflateInit_(ref stream, Version, 56));
+        return ThrowWhenNotOk(inflateInit_(ref stream, Version, Marshal.SizeOf<ZStream>()));
     }
 
     internal Status Inflate(FlushType flush)
@@ -159,21 +159,21 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
 
     private Status ThrowWhenNotOk(Status status)
     {
-        if (status < Status.Z_OK)
+        if (status >= Status.Z_OK)
         {
-            if (stream.msg != IntPtr.Zero)
-            {
-                throw new ZlibException($"{status}: {Marshal.PtrToStringAuto(stream.msg)}");
-            }
-
-            if (status == Status.Z_VERSION_ERROR)
-            {
-                throw new ZlibException($"{status}, sizeof stream: {Marshal.SizeOf<ZStream>()}");
-            }
-
-            throw new ZlibException(status.ToString());
+            return status;
         }
-        
-        return status;
+
+        if (stream.msg != IntPtr.Zero)
+        {
+            throw new ZlibException($"{status}: {Marshal.PtrToStringAuto(stream.msg)}");
+        }
+
+        if (status == Status.Z_VERSION_ERROR)
+        {
+            throw new ZlibException($"{status}, sizeof stream: {Marshal.SizeOf<ZStream>()}");
+        }
+
+        throw new ZlibException(status.ToString());
     }
 }
