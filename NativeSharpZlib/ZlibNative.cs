@@ -8,7 +8,7 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
     private const string Library = "zlib";
     private const string Version = "1.2.5";
 
-    private readonly ZStream stream = stream;
+    private ZStream stream = stream;
 
     public int AvailIn
     {
@@ -38,58 +38,84 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
 
     internal Status DeflateInit(int level = 8)
     {
-        var sizeOfStream = Marshal.SizeOf<ZStream>();
-        Debug.WriteLine($"Size of stream: {sizeOfStream}");
-        return ThrowWhenNotOk(deflateInit_(stream, level, Version, sizeOfStream));
+        return ThrowWhenNotOk(deflateInit_(ref stream, level, Version, Marshal.SizeOf<ZStream>()));
     }
 
     internal Status Deflate(FlushType flush)
     {
-        return ThrowWhenNotOk(deflate(stream, flush));
+        return ThrowWhenNotOk(deflate(ref stream, flush));
     }
 
     internal Status DeflateEnd()
     {
-        return ThrowWhenNotOk(deflateEnd(stream));
+        return ThrowWhenNotOk(deflateEnd(ref stream));
     }
 
     internal Status InflateInit()
     {
-        var sizeOfStream = Marshal.SizeOf<ZStream>();
-        Debug.WriteLine($"Size of stream: {sizeOfStream}");
-        return ThrowWhenNotOk(inflateInit_(stream, Version, sizeOfStream));
+        return ThrowWhenNotOk(inflateInit_(ref stream, Version, Marshal.SizeOf<ZStream>()));
     }
 
     internal Status Inflate(FlushType flush)
     {
-        return ThrowWhenNotOk(inflate(stream, flush));
+        return ThrowWhenNotOk(inflate(ref stream, flush));
     }
 
     internal Status InflateEnd()
     {
-        return ThrowWhenNotOk(inflateEnd(stream));
+        return ThrowWhenNotOk(inflateEnd(ref stream));
     }
 
-    [DllImport(Library, CallingConvention = CallingConvention.Cdecl)]
-    private static extern Status deflateInit_(ZStream stream, int level, string version, int stream_size);
+#if NET8_0_OR_GREATER
+    [LibraryImport(Library, StringMarshalling = StringMarshalling.Utf8)]
+    private static partial Status deflateInit_(ref ZStream stream, int level, string version, int stream_size);
+#else
+    [DllImport(Library)]
+    private static extern Status deflateInit_(ref ZStream stream, int level, string version, int stream_size);
+#endif
 
-    [DllImport(Library, CallingConvention = CallingConvention.Cdecl)]
-    private static extern Status deflate(ZStream stream, FlushType flush);
+#if NET8_0_OR_GREATER
+    [LibraryImport(Library)]
+    private static partial Status deflate(ref ZStream stream, FlushType flush);
+#else
+    [DllImport(Library)]
+    private static extern Status deflate(ref ZStream stream, FlushType flush);
+#endif
 
-    [DllImport(Library, CallingConvention = CallingConvention.Cdecl)]
-    private static extern Status deflateEnd(ZStream stream);
+#if NET8_0_OR_GREATER
+    [LibraryImport(Library)]
+    private static partial Status deflateEnd(ref ZStream stream);
+#else
+    [DllImport(Library)]
+    private static extern Status deflateEnd(ref ZStream stream);
+#endif
 
-    [DllImport(Library, CallingConvention = CallingConvention.Cdecl)]
-    private static extern Status inflateInit_(ZStream stream, string version, int stream_size);
+#if NET8_0_OR_GREATER
+    [LibraryImport(Library, StringMarshalling = StringMarshalling.Utf8)]
+    private static partial Status inflateInit_(ref ZStream stream, string version, int stream_size);
+#else
+    [DllImport(Library)]
+    private static extern Status inflateInit_(ref ZStream stream, string version, int stream_size);
+#endif
 
-    [DllImport(Library, CallingConvention = CallingConvention.Cdecl)]
-    private static extern Status inflate(ZStream stream, FlushType flush);
+#if NET8_0_OR_GREATER
+    [LibraryImport(Library)]
+    private static partial Status inflate(ref ZStream stream, FlushType flush);
+#else
+    [DllImport(Library)]
+    private static extern Status inflate(ref ZStream stream, FlushType flush);
+#endif
 
-    [DllImport(Library, CallingConvention = CallingConvention.Cdecl)]
-    private static extern Status inflateEnd(ZStream stream);
+#if NET8_0_OR_GREATER
+    [LibraryImport(Library)]
+    private static partial Status inflateEnd(ref ZStream stream);
+#else
+    [DllImport(Library)]
+    private static extern Status inflateEnd(ref ZStream stream);
+#endif
 
     [StructLayout(LayoutKind.Sequential)]
-    internal class ZStream
+    internal struct ZStream
     {
         public IntPtr next_in;
         public int avail_in;
