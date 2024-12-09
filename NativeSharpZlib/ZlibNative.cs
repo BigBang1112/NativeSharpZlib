@@ -69,7 +69,7 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
     [LibraryImport(Library, StringMarshalling = StringMarshalling.Utf8)]
     private static partial Status deflateInit_(ref ZStream stream, int level, string version, int stream_size);
 #else
-    [DllImport(Library)]
+    [DllImport(Library, CharSet = CharSet.Unicode)]
     private static extern Status deflateInit_(ref ZStream stream, int level, string version, int stream_size);
 #endif
 
@@ -93,7 +93,7 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
     [LibraryImport(Library, StringMarshalling = StringMarshalling.Utf8)]
     private static partial Status inflateInit_(ref ZStream stream, string version, int stream_size);
 #else
-    [DllImport(Library)]
+    [DllImport(Library, CharSet = CharSet.Unicode)]
     private static extern Status inflateInit_(ref ZStream stream, string version, int stream_size);
 #endif
 

@@ -7,17 +7,16 @@ namespace NativeSharpZlib;
 
 public class NativeZlibStream : Stream
 {
-    private const int CompressedBlockSize = 256;
-    private const int UncompressedBlockSize = 1024;
-
     private readonly Stream stream;
     private readonly CompressionMode mode;
-    private readonly bool leaveOpen;
     private readonly ZlibNative zlibNative;
-    private readonly byte[] compressedBuffer = new byte[CompressedBlockSize];
-    private readonly byte[] uncompressedBuffer = new byte[UncompressedBlockSize];
-    private readonly nint compressedBufferPtr = Marshal.AllocHGlobal(CompressedBlockSize);
-    private readonly nint uncompressedBufferPtr = Marshal.AllocHGlobal(UncompressedBlockSize);
+    private readonly bool leaveOpen;
+    private readonly int compressedBlockSize;
+    private readonly int uncompressedBlockSize;
+    private readonly byte[] compressedBuffer;
+    private readonly byte[] uncompressedBuffer;
+    private readonly nint compressedBufferPtr;
+    private readonly nint uncompressedBufferPtr;
 
     private int position;
     private int uncompressedIndex;
@@ -34,13 +33,21 @@ public class NativeZlibStream : Stream
         set => throw new NotSupportedException();
     }
 
-    public NativeZlibStream(Stream stream, CompressionMode mode, bool leaveOpen = false)
+    public NativeZlibStream(Stream stream, CompressionMode mode, NativeZlibOptions options)
     {
         this.stream = stream;
         this.mode = mode;
-        this.leaveOpen = leaveOpen;
+
+        leaveOpen = options.LeaveOpen;
+        compressedBlockSize = options.CompressedBlockSize;
+        uncompressedBlockSize = options.UncompressedBlockSize;
 
         zlibNative = new ZlibNative();
+
+        compressedBuffer = new byte[compressedBlockSize];
+        uncompressedBuffer = new byte[uncompressedBlockSize];
+        compressedBufferPtr = Marshal.AllocHGlobal(compressedBlockSize);
+        uncompressedBufferPtr = Marshal.AllocHGlobal(uncompressedBlockSize);
 
         if (mode == CompressionMode.Compress)
         {
@@ -51,6 +58,9 @@ public class NativeZlibStream : Stream
             zlibNative.InflateInit();
         }
     }
+
+    public NativeZlibStream(Stream stream, CompressionMode mode, bool leaveOpen = false)
+        : this(stream, mode, new NativeZlibOptions { LeaveOpen = leaveOpen }) { }
 
     public override int Read(byte[] buffer, int offset, int count)
     {
@@ -98,7 +108,7 @@ public class NativeZlibStream : Stream
 
         while (bytesRemaining > 0)
         {
-            var chunkSize = Math.Min(UncompressedBlockSize - uncompressedIndex, bytesRemaining);
+            var chunkSize = Math.Min(uncompressedBlockSize - uncompressedIndex, bytesRemaining);
             Array.Copy(buffer, offset, uncompressedBuffer, uncompressedIndex, chunkSize);
 
             uncompressedIndex += chunkSize;
@@ -106,7 +116,7 @@ public class NativeZlibStream : Stream
             offset += chunkSize;
             bytesRemaining -= chunkSize;
 
-            if (uncompressedIndex == UncompressedBlockSize) // Compress if buffer is full
+            if (uncompressedIndex == uncompressedBlockSize) // Compress if buffer is full
             {
                 CompressBuffer();
             }
@@ -132,11 +142,11 @@ public class NativeZlibStream : Stream
     {
         int uncompressedTotal = 0;
 
-        while (uncompressedTotal < UncompressedBlockSize)
+        while (uncompressedTotal < uncompressedBlockSize)
         {
             if (zlibNative.AvailIn == 0) // Refill compressed buffer if necessary
             {
-                var bytesRead = stream.Read(compressedBuffer, 0, CompressedBlockSize);
+                var bytesRead = stream.Read(compressedBuffer, 0, compressedBlockSize);
 
                 if (bytesRead == 0)
                 {
@@ -147,7 +157,7 @@ public class NativeZlibStream : Stream
                 SetInflateInput(compressedBuffer, 0, bytesRead);
             }
 
-            uncompressedTotal += InflateData(uncompressedBuffer, uncompressedTotal, UncompressedBlockSize - uncompressedTotal, out var streamEnd);
+            uncompressedTotal += InflateData(uncompressedBuffer, uncompressedTotal, uncompressedBlockSize - uncompressedTotal, out var streamEnd);
 
             if (streamEnd)
             {
@@ -215,7 +225,7 @@ public class NativeZlibStream : Stream
         var finished = false;
         while (zlibNative.AvailIn > 0 || (flushFinalBlock && !finished))
         {
-            var deflatedBytes = DeflateData(compressedBuffer, 0, CompressedBlockSize, flushFinalBlock, out finished);
+            var deflatedBytes = DeflateData(compressedBuffer, 0, compressedBlockSize, flushFinalBlock, out finished);
             stream.Write(compressedBuffer, 0, deflatedBytes);
         }
     }
