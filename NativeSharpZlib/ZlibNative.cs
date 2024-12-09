@@ -135,12 +135,17 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
     {
         if (status < Status.Z_OK)
         {
-            if (stream.msg == IntPtr.Zero)
+            if (stream.msg != IntPtr.Zero)
             {
-                throw new ZlibException(status.ToString());
+                throw new ZlibException($"{status}: {Marshal.PtrToStringAuto(stream.msg)}");
             }
 
-            throw new ZlibException($"{status}: {Marshal.PtrToStringAuto(stream.msg)}");
+            if (status == Status.Z_VERSION_ERROR)
+            {
+                throw new ZlibException($"{status}, sizeof stream: {Marshal.SizeOf<ZStream>()}");
+            }
+
+            throw new ZlibException(status.ToString());
         }
         
         return status;
