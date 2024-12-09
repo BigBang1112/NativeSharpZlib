@@ -118,18 +118,31 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
     {
         public IntPtr next_in;
         public int avail_in;
+#if WINDOWS
+        public uint total_in;
+#else
         public ulong total_in;
+#endif
         public IntPtr next_out;
         public int avail_out;
+#if WINDOWS
+        public uint total_out;
+#else
         public ulong total_out;
+#endif
         public IntPtr msg;
         public IntPtr state;
         public IntPtr zalloc;
         public IntPtr zfree;
         public IntPtr opaque;
         public int data_type;
+#if WINDOWS
+        public uint adler;
+        public uint reserved;
+#else
         public ulong adler;
         public ulong reserved;
+#endif
     }
 
     internal enum FlushType
