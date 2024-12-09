@@ -37,7 +37,7 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
 
     internal Status DeflateInit(int level = 8)
     {
-        return ThrowWhenNotOk(deflateInit_(stream, level, Version, Marshal.SizeOf(stream)));
+        return ThrowWhenNotOk(deflateInit_(stream, level, Version, Marshal.SizeOf<ZStream>()));
     }
 
     internal Status Deflate(FlushType flush)
@@ -52,7 +52,7 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
 
     internal Status InflateInit()
     {
-        return ThrowWhenNotOk(inflateInit_(stream, Version, Marshal.SizeOf(stream)));
+        return ThrowWhenNotOk(inflateInit_(stream, Version, Marshal.SizeOf<ZStream>()));
     }
 
     internal Status Inflate(FlushType flush)
