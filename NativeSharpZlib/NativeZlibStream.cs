@@ -51,7 +51,7 @@ public class NativeZlibStream : Stream
 
         if (mode == CompressionMode.Compress)
         {
-            zlibNative.DeflateInit();
+            zlibNative.DeflateInit(options.CompressionLevel);
         }
         else
         {
