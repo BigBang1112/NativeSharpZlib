@@ -5,7 +5,8 @@ namespace NativeSharpZlib;
 internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
 {
     private const string Library = "zlib";
-    private const string Version = "1.2.5";
+
+    private static readonly string Version;
 
     private ZStream stream = stream;
 
