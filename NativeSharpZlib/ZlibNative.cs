@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace NativeSharpZlib;
 
@@ -119,18 +118,18 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
     {
         public IntPtr next_in;
         public int avail_in;
-        public int total_in;
+        public ulong total_in;
         public IntPtr next_out;
         public int avail_out;
-        public int total_out;
+        public ulong total_out;
         public IntPtr msg;
         public IntPtr state;
         public IntPtr zalloc;
         public IntPtr zfree;
         public IntPtr opaque;
         public int data_type;
-        public uint adler;
-        public uint reserved;
+        public ulong adler;
+        public ulong reserved;
     }
 
     internal enum FlushType
