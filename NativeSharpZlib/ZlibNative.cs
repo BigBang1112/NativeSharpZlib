@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace NativeSharpZlib;
 
@@ -37,7 +38,9 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
 
     internal Status DeflateInit(int level = 8)
     {
-        return ThrowWhenNotOk(deflateInit(stream, level));
+        var sizeOfStream = Marshal.SizeOf<ZStream>();
+        Debug.WriteLine($"Size of stream: {sizeOfStream}");
+        return ThrowWhenNotOk(deflateInit_(stream, level, Version, sizeOfStream));
     }
 
     internal Status Deflate(FlushType flush)
@@ -52,7 +55,9 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
 
     internal Status InflateInit()
     {
-        return ThrowWhenNotOk(inflateInit(stream));
+        var sizeOfStream = Marshal.SizeOf<ZStream>();
+        Debug.WriteLine($"Size of stream: {sizeOfStream}");
+        return ThrowWhenNotOk(inflateInit_(stream, Version, sizeOfStream));
     }
 
     internal Status Inflate(FlushType flush)
@@ -66,7 +71,7 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
     }
 
     [DllImport(Library, CallingConvention = CallingConvention.Cdecl)]
-    private static extern Status deflateInit(ZStream stream, int level);
+    private static extern Status deflateInit_(ZStream stream, int level, string version, int stream_size);
 
     [DllImport(Library, CallingConvention = CallingConvention.Cdecl)]
     private static extern Status deflate(ZStream stream, FlushType flush);
@@ -75,7 +80,7 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
     private static extern Status deflateEnd(ZStream stream);
 
     [DllImport(Library, CallingConvention = CallingConvention.Cdecl)]
-    private static extern Status inflateInit(ZStream stream);
+    private static extern Status inflateInit_(ZStream stream, string version, int stream_size);
 
     [DllImport(Library, CallingConvention = CallingConvention.Cdecl)]
     private static extern Status inflate(ZStream stream, FlushType flush);
