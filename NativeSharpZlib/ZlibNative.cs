@@ -83,6 +83,9 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
     [DllImport(Library)]
     private static extern Status inflateEnd(ZStream stream);
 
+    [DllImport(Library)]
+    private static extern string zlibVersion();
+
     [StructLayout(LayoutKind.Sequential)]
     internal class ZStream
     {
@@ -130,6 +133,11 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
     {
         if (status < Status.Z_OK)
         {
+            if (status == Status.Z_VERSION_ERROR)
+            {
+                throw new ZlibException($"Zlib version mismatch (expected {Version}, actual {zlibVersion()})");
+            }
+
             throw new ZlibException(status.ToString());
         }
 
