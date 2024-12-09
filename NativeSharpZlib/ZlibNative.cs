@@ -65,22 +65,22 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
         return ThrowWhenNotOk(inflateEnd(stream));
     }
 
-    [DllImport(Library)]
+    [DllImport(Library, CallingConvention = CallingConvention.Cdecl)]
     private static extern Status deflateInit_(ZStream stream, int level, string version, int stream_size);
 
-    [DllImport(Library)]
+    [DllImport(Library, CallingConvention = CallingConvention.Cdecl)]
     private static extern Status deflate(ZStream stream, FlushType flush);
 
-    [DllImport(Library)]
+    [DllImport(Library, CallingConvention = CallingConvention.Cdecl)]
     private static extern Status deflateEnd(ZStream stream);
 
-    [DllImport(Library)]
+    [DllImport(Library, CallingConvention = CallingConvention.Cdecl)]
     private static extern Status inflateInit_(ZStream stream, string version, int stream_size);
 
-    [DllImport(Library)]
+    [DllImport(Library, CallingConvention = CallingConvention.Cdecl)]
     private static extern Status inflate(ZStream stream, FlushType flush);
 
-    [DllImport(Library)]
+    [DllImport(Library, CallingConvention = CallingConvention.Cdecl)]
     private static extern Status inflateEnd(ZStream stream);
 
     [StructLayout(LayoutKind.Sequential)]
@@ -137,7 +137,7 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
 
             throw new ZlibException($"{status}: {Marshal.PtrToStringAuto(stream.msg)}");
         }
-
+        
         return status;
     }
 }
