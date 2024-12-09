@@ -26,7 +26,7 @@ jobs:
       id: cache-zlib
       uses: actions/cache@v4
       with:
-        path: build/runtimes
+        path: zlib-${{ env.ZLIB_VERSION }}/build/runtimes
         key: zlib-${{ env.ZLIB_VERSION }}-${{ matrix.compiler.rid }}
     
     - name: Download zlib source
