@@ -145,14 +145,16 @@ jobs:
     - name: Copy native lib to test project (Linux)
       if: matrix.os == 'ubuntu-latest'
       run: |
-        cp -r runtimes/linux-x64/native/* NativeSharpZlib.Tests/bin/Release/net8.0
         cp -r runtimes/linux-x64/native/* NativeSharpZlib.Tests/bin/Release/net9.0
+        cp -r runtimes/linux-x64/native/* NativeSharpZlib.Tests/bin/Release/net8.0
+        cp -r runtimes/linux-x64/native/* NativeSharpZlib.Tests/bin/Release/net6.0
     
     - name: Copy native lib to test project (Windows)
       if: matrix.os == 'windows-latest'
       run: |
-        Copy-Item -Path 'runtimes/win-x64/native/*' -Destination 'NativeSharpZlib.Tests/bin/Release/net8.0' -Recurse
         Copy-Item -Path 'runtimes/win-x64/native/*' -Destination 'NativeSharpZlib.Tests/bin/Release/net9.0' -Recurse
+        Copy-Item -Path 'runtimes/win-x64/native/*' -Destination 'NativeSharpZlib.Tests/bin/Release/net8.0' -Recurse
+        Copy-Item -Path 'runtimes/win-x64/native/*' -Destination 'NativeSharpZlib.Tests/bin/Release/net6.0' -Recurse
       
     - name: Test
       run: dotnet test -c Release --no-build --verbosity normal
