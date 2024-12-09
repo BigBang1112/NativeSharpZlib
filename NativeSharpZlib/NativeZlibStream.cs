@@ -5,7 +5,7 @@ using static NativeSharpZlib.ZlibNative;
 
 namespace NativeSharpZlib;
 
-public class NativeZlibStream : Stream
+public partial class NativeZlibStream : Stream
 {
     private readonly Stream stream;
     private readonly CompressionMode mode;
@@ -62,7 +62,8 @@ public class NativeZlibStream : Stream
     public NativeZlibStream(Stream stream, CompressionMode mode, bool leaveOpen = false)
         : this(stream, mode, new NativeZlibOptions { LeaveOpen = leaveOpen }) { }
 
-    public override int Read(byte[] buffer, int offset, int count)
+    [Zomp.SyncMethodGenerator.CreateSyncVersion]
+    public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
     {
         if (!CanRead)
         {
@@ -76,7 +77,7 @@ public class NativeZlibStream : Stream
             if (uncompressedIndex == uncompressedSize) // Refill the buffer if empty
             {
                 uncompressedIndex = 0;
-                uncompressedSize = RefillUncompressedBuffer();
+                uncompressedSize = await RefillUncompressedBufferAsync(cancellationToken);
 
                 if (uncompressedSize == 0)
                 {
@@ -97,7 +98,8 @@ public class NativeZlibStream : Stream
         return count - bytesRemaining;
     }
 
-    public override void Write(byte[] buffer, int offset, int count)
+    [Zomp.SyncMethodGenerator.CreateSyncVersion]
+    public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
     {
         if (!CanWrite)
         {
@@ -118,7 +120,7 @@ public class NativeZlibStream : Stream
 
             if (uncompressedIndex == uncompressedBlockSize) // Compress if buffer is full
             {
-                CompressBuffer();
+                await CompressBufferAsync(cancellationToken);
             }
         }
     }
@@ -138,7 +140,8 @@ public class NativeZlibStream : Stream
         throw new NotSupportedException();
     }
 
-    private int RefillUncompressedBuffer()
+    [Zomp.SyncMethodGenerator.CreateSyncVersion]
+    private async ValueTask<int> RefillUncompressedBufferAsync(CancellationToken cancellationToken)
     {
         int uncompressedTotal = 0;
 
@@ -146,7 +149,7 @@ public class NativeZlibStream : Stream
         {
             if (zlibNative.AvailIn == 0) // Refill compressed buffer if necessary
             {
-                var bytesRead = stream.Read(compressedBuffer, 0, compressedBlockSize);
+                var bytesRead = await stream.ReadAsync(compressedBuffer, 0, compressedBlockSize, cancellationToken);
 
                 if (bytesRead == 0)
                 {
@@ -168,10 +171,11 @@ public class NativeZlibStream : Stream
         return uncompressedTotal;
     }
 
-    private void CompressBuffer()
+    [Zomp.SyncMethodGenerator.CreateSyncVersion]
+    private async Task CompressBufferAsync(CancellationToken cancellationToken)
     {
         SetDeflateInput(uncompressedBuffer, 0, uncompressedIndex);
-        FlushDeflateOutput(flushFinalBlock: false);
+        await FlushDeflateOutputAsync(flushFinalBlock: false, cancellationToken);
         uncompressedIndex = 0;
     }
 
@@ -220,13 +224,14 @@ public class NativeZlibStream : Stream
         return deflatedBytes;
     }
 
-    private void FlushDeflateOutput(bool flushFinalBlock)
+    [Zomp.SyncMethodGenerator.CreateSyncVersion]
+    private async ValueTask FlushDeflateOutputAsync(bool flushFinalBlock, CancellationToken cancellationToken)
     {
         var finished = false;
         while (zlibNative.AvailIn > 0 || (flushFinalBlock && !finished))
         {
             var deflatedBytes = DeflateData(compressedBuffer, 0, compressedBlockSize, flushFinalBlock, out finished);
-            stream.Write(compressedBuffer, 0, deflatedBytes);
+            await stream.WriteAsync(compressedBuffer, 0, deflatedBytes, cancellationToken);
         }
     }
 
@@ -272,4 +277,41 @@ public class NativeZlibStream : Stream
             base.Dispose(disposing);
         }
     }
+
+#if NET6_0_OR_GREATER
+    public override async ValueTask DisposeAsync()
+    {
+        if (disposed) return;
+        try
+        {
+            if (mode == CompressionMode.Compress)
+            {
+                if (uncompressedIndex > 0)
+                {
+                    await CompressBufferAsync(CancellationToken.None);
+                }
+                await FlushDeflateOutputAsync(flushFinalBlock: true, CancellationToken.None);
+            }
+            if (!leaveOpen)
+            {
+                await stream.DisposeAsync();
+            }
+            if (mode == CompressionMode.Compress)
+            {
+                zlibNative?.DeflateEnd();
+            }
+            else
+            {
+                zlibNative?.InflateEnd();
+            }
+        }
+        finally
+        {
+            Marshal.FreeHGlobal(compressedBufferPtr);
+            Marshal.FreeHGlobal(uncompressedBufferPtr);
+            disposed = true;
+            await base.DisposeAsync();
+        }
+    }
+#endif
 }
