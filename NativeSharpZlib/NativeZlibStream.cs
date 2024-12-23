@@ -149,7 +149,11 @@ public partial class NativeZlibStream : Stream
         {
             if (zlibNative.AvailIn == 0) // Refill compressed buffer if necessary
             {
+#if NET6_0_OR_GREATER
+                var bytesRead = await stream.ReadAsync(compressedBuffer.AsMemory(0, compressedBlockSize), cancellationToken);
+#else
                 var bytesRead = await stream.ReadAsync(compressedBuffer, 0, compressedBlockSize, cancellationToken);
+#endif
 
                 if (bytesRead == 0)
                 {
@@ -231,7 +235,11 @@ public partial class NativeZlibStream : Stream
         while (zlibNative.AvailIn > 0 || (flushFinalBlock && !finished))
         {
             var deflatedBytes = DeflateData(compressedBuffer, 0, compressedBlockSize, flushFinalBlock, out finished);
+#if NET6_0_OR_GREATER
+            await stream.WriteAsync(compressedBuffer.AsMemory(0, deflatedBytes), cancellationToken);
+#else
             await stream.WriteAsync(compressedBuffer, 0, deflatedBytes, cancellationToken);
+#endif
         }
     }
 
@@ -312,6 +320,7 @@ public partial class NativeZlibStream : Stream
             disposed = true;
             await base.DisposeAsync();
         }
+        GC.SuppressFinalize(this);
     }
 #endif
 }
