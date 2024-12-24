@@ -3,131 +3,35 @@ name: Test zlib build
 on:
   workflow_dispatch:
 
-env:
-  ZLIB_VERSION: "1.2.5"
-
 permissions:
   contents: read
 
 jobs:
-  compile-zlib-windows:
-    name: Compile zlib (${{ matrix.compiler.rid }})
-    runs-on: windows-latest
-
-    strategy:
-      matrix:
-        compiler:
-        - {arch: Win32, rid: win-x86}
-        - {arch: x64, rid: win-x64}
-
-    steps:
-    
-    - name: Cache zlib-${{ env.ZLIB_VERSION }}
-      id: cache-zlib
-      uses: actions/cache@v4
-      with:
-        path: zlib-${{ env.ZLIB_VERSION }}/build/runtimes
-        key: zlib-${{ env.ZLIB_VERSION }}-${{ matrix.compiler.rid }}
-    
-    - name: Download zlib source
-      if: steps.cache-zlib.outputs.cache-hit != 'true'
-      run: |
-        Invoke-WebRequest -Uri "https://www.zlib.net/fossils/zlib-${{ env.ZLIB_VERSION }}.tar.gz" -OutFile "zlib.tar.gz"
-        tar -xzf zlib.tar.gz
-        rm zlib-${{ env.ZLIB_VERSION }}/zconf.h
-        
-    - name: Set up CMake
-      if: steps.cache-zlib.outputs.cache-hit != 'true'
-      uses: jwlawson/actions-setup-cmake@v2
-      with:
-        use-32bit: true
-
-    - name: Build zlib
-      if: steps.cache-zlib.outputs.cache-hit != 'true'
-      run: |
-        cd zlib-${{ env.ZLIB_VERSION }}
-        mkdir build
-        cd build
-        cmake -G "Visual Studio 17 2022" -A ${{ matrix.compiler.arch }} -DCMAKE_BUILD_TYPE=Release ..
-        cmake --build . --config Release
-        mkdir -p runtimes/${{ matrix.compiler.rid }}/native
-        cp Release/zlib1.dll runtimes/${{ matrix.compiler.rid }}/native/zlib.dll
-        
-    - name: Upload zlib-${{ env.ZLIB_VERSION }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: zlib-${{ env.ZLIB_VERSION }}-${{ matrix.compiler.rid }}
-        path: zlib-${{ env.ZLIB_VERSION }}/build/runtimes
-
-  compile-zlib-dockcross:
-    name: Compile zlib (${{ matrix.compiler.rid }})
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        compiler:
-          - {target: linux-x64, src: libz.so, dst: zlib.so, rid: linux-x64}
-          - {target: linux-armv6, src: libz.so, dst: zlib.so, rid: linux-arm}
-          - {target: linux-arm64, src: libz.so, dst: zlib.so, rid: linux-arm64}
-          - {target: web-wasm, src: libz.a, dst: libz.a, rid: browser-wasm}
-    
-    container:
-      image: dockcross/${{ matrix.compiler.target }}
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Cache zlib-${{ env.ZLIB_VERSION }}
-      id: cache-zlib
-      uses: actions/cache@v4
-      with:
-        path: runtimes
-        key: zlib-${{ env.ZLIB_VERSION }}-${{ matrix.compiler.rid }}
-
-    - name: Download and extract zlib-${{ env.ZLIB_VERSION }}
-      if: steps.cache-zlib.outputs.cache-hit != 'true'
-      run: |
-        wget https://www.zlib.net/fossils/zlib-${{ env.ZLIB_VERSION }}.tar.gz
-        tar -xzvf zlib-${{ env.ZLIB_VERSION }}.tar.gz
-        rm zlib-${{ env.ZLIB_VERSION }}/zconf.h
-    
-    - name: Compile zlib-${{ env.ZLIB_VERSION }}
-      if: steps.cache-zlib.outputs.cache-hit != 'true'
-      run: |
-        cmake -B build/${{ matrix.compiler.target }} -S zlib-${{ env.ZLIB_VERSION }}/ -G Ninja -DBUILD_SHARED_LIBS=ON
-        ninja -C build/${{ matrix.compiler.target }} zlib
-        mkdir -p runtimes/${{ matrix.compiler.rid }}/native
-        cp build/${{ matrix.compiler.target }}/${{ matrix.compiler.src }} runtimes/${{ matrix.compiler.rid }}/native/${{ matrix.compiler.dst }}
-        
-    - name: Upload zlib-${{ env.ZLIB_VERSION }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: zlib-${{ env.ZLIB_VERSION }}-${{ matrix.compiler.rid }}
-        path: runtimes
+  build-zlib:
+    uses: ./.github/workflows/build-zlib.yml
+    with:
+      zlib_version: 1.2.5
 
   build-and-test:
-    needs: [compile-zlib-windows, compile-zlib-dockcross]
+    needs: build-zlib
 
     name: Build and Test
     runs-on: ${{ matrix.os }}
-    
+
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
       fail-fast: false
-    
-    env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Download zlib-${{ env.ZLIB_VERSION }}
+    - name: Download zlib build
       uses: actions/download-artifact@v4
       with:
         path: runtimes
         merge-multiple: true
-    
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
@@ -135,40 +39,26 @@ jobs:
           9.0.x
           8.0.x
           6.0.x
-          
+
     - name: Restore dependencies
       run: dotnet restore
-      
+
     - name: Build
-      run: dotnet build -c Release --no-restore -p:ContinuousIntegrationBuild=true -p:ZlibVersion=${{ env.ZLIB_VERSION }}
-    
+      run: dotnet build -c Release --no-restore -p:ContinuousIntegrationBuild=true -p:ZlibVersion=1.2.5
+
     - name: Copy native lib to test project (Linux)
       if: matrix.os == 'ubuntu-latest'
       run: |
         cp -r runtimes/linux-x64/native/* NativeSharpZlib.Tests/bin/Release/net9.0
         cp -r runtimes/linux-x64/native/* NativeSharpZlib.Tests/bin/Release/net8.0
         cp -r runtimes/linux-x64/native/* NativeSharpZlib.Tests/bin/Release/net6.0
-    
+
     - name: Copy native lib to test project (Windows)
       if: matrix.os == 'windows-latest'
       run: |
         Copy-Item -Path 'runtimes/win-x64/native/*' -Destination 'NativeSharpZlib.Tests/bin/Release/net9.0' -Recurse
         Copy-Item -Path 'runtimes/win-x64/native/*' -Destination 'NativeSharpZlib.Tests/bin/Release/net8.0' -Recurse
         Copy-Item -Path 'runtimes/win-x64/native/*' -Destination 'NativeSharpZlib.Tests/bin/Release/net6.0' -Recurse
-      
+
     - name: Test
       run: dotnet test -c Release --no-build --verbosity normal --no-build --collect:"XPlat Code Coverage" --results-directory ./coverage
-      
-    - name: Code Coverage Report
-      uses: irongut/CodeCoverageSummary@v1.3.0
-      if: matrix.os == 'ubuntu-latest'
-      with:
-        filename: coverage/**/coverage.cobertura.xml
-        badge: true
-        fail_below_min: true
-        format: text
-        hide_branch_rate: false
-        hide_complexity: true
-        indicators: true
-        output: both
-        thresholds: '10 30'

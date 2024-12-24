@@ -1,0 +1,103 @@
+name: Build zlib
+
+on:
+  workflow_call:
+    inputs:
+      zlib_version:
+        required: true
+        type: string
+
+jobs:
+  build-zlib-windows:
+    name: Build zlib (Windows)
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        compiler:
+        - {arch: Win32, rid: win-x86}
+        - {arch: x64, rid: win-x64}
+
+    steps:
+    - name: Cache zlib-${{ inputs.zlib_version }}
+      id: cache-zlib
+      uses: actions/cache@v4
+      with:
+        path: zlib-${{ inputs.zlib_version }}/build/runtimes
+        key: zlib-${{ inputs.zlib_version }}-${{ matrix.compiler.rid }}
+
+    - name: Download zlib-${{ inputs.zlib_version }} source
+      if: steps.cache-zlib.outputs.cache-hit != 'true'
+      run: |
+        Invoke-WebRequest -Uri "https://www.zlib.net/fossils/zlib-${{ inputs.zlib_version }}.tar.gz" -OutFile "zlib.tar.gz"
+        tar -xzf zlib.tar.gz
+        rm zlib-${{ inputs.zlib_version }}/zconf.h
+
+    - name: Set up CMake
+      if: steps.cache-zlib.outputs.cache-hit != 'true'
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        use-32bit: true
+
+    - name: Build zlib-${{ inputs.zlib_version }}
+      if: steps.cache-zlib.outputs.cache-hit != 'true'
+      run: |
+        cd zlib-${{ inputs.zlib_version }}
+        mkdir build
+        cd build
+        cmake -G "Visual Studio 17 2022" -A ${{ matrix.compiler.arch }} -DCMAKE_BUILD_TYPE=Release ..
+        cmake --build . --config Release
+        mkdir -p runtimes/${{ matrix.compiler.rid }}/native
+        cp Release/zlib1.dll runtimes/${{ matrix.compiler.rid }}/native/zlib.dll
+
+    - name: Upload zlib-${{ inputs.zlib_version }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: zlib-${{ inputs.zlib_version }}-${{ matrix.compiler.rid }}
+        path: zlib-${{ inputs.zlib_version }}/build/runtimes
+
+  build-zlib-dockcross:
+    name: Build zlib (Linux)
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        compiler:
+        - {target: linux-x64, src: libz.so, dst: zlib.so, rid: linux-x64}
+        - {target: linux-armv6, src: libz.so, dst: zlib.so, rid: linux-arm}
+        - {target: linux-arm64, src: libz.so, dst: zlib.so, rid: linux-arm64}
+        - {target: web-wasm, src: libz.a, dst: libz.a, rid: browser-wasm}
+
+    container:
+      image: dockcross/${{ matrix.compiler.target }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Cache zlib-${{ inputs.zlib_version }}
+      id: cache-zlib
+      uses: actions/cache@v4
+      with:
+        path: runtimes
+        key: zlib-${{ inputs.zlib_version }}-${{ matrix.compiler.rid }}
+
+    - name: Download and extract zlib-${{ inputs.zlib_version }}
+      if: steps.cache-zlib.outputs.cache-hit != 'true'
+      run: |
+        wget https://www.zlib.net/fossils/zlib-${{ inputs.zlib_version }}.tar.gz
+        tar -xzvf zlib-${{ inputs.zlib_version }}.tar.gz
+        rm zlib-${{ inputs.zlib_version }}/zconf.h
+
+    - name: Build zlib-${{ inputs.zlib_version }}
+      if: steps.cache-zlib.outputs.cache-hit != 'true'
+      run: |
+        cmake -B build/${{ matrix.compiler.target }} -S zlib-${{ inputs.zlib_version }}/ -G Ninja -DBUILD_SHARED_LIBS=ON
+        ninja -C build/${{ matrix.compiler.target }} zlib
+        mkdir -p runtimes/${{ matrix.compiler.rid }}/native
+        cp build/${{ matrix.compiler.target }}/${{ matrix.compiler.src }} runtimes/${{ matrix.compiler.rid }}/native/${{ matrix.compiler.dst }}
+
+    - name: Upload zlib-${{ inputs.zlib_version }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: zlib-${{ inputs.zlib_version }}-${{ matrix.compiler.rid }}
+        path: runtimes
