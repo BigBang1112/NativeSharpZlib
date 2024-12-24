@@ -13,7 +13,8 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>1.2.5</Version>
+        <Version>0.1.0</Version>
+        <ZlibVersion>1.2.5</ZlibVersion>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -40,6 +41,10 @@
     <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
         <DefineConstants>WINDOWS</DefineConstants>
     </PropertyGroup>
+
+    <ItemGroup>
+        <CompilerVisibleProperty Include="ZlibVersion" />
+    </ItemGroup>
 
     <ItemGroup>
         <None Include="README.md" Pack="true" PackagePath="\" />

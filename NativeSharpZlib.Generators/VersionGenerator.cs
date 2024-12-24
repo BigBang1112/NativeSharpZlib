@@ -15,18 +15,22 @@ public class FieldsGenerator : IIncrementalGenerator
             Debugger.Launch();
         }
 
-        var assemblies = context.CompilationProvider
+        var assemblies = context.AnalyzerConfigOptionsProvider
             .Select((compilation, token) =>
             {
-                return compilation.Assembly;
+                if (compilation.GlobalOptions.TryGetValue("build_property.ZlibVersion", out var version))
+                {
+                    return version;
+                }
+
+                return "1.2.5";
             });
 
         context.RegisterSourceOutput(assemblies, GenerateVersion);
     }
 
-    private void GenerateVersion(SourceProductionContext context, IAssemblySymbol symbol)
+    private void GenerateVersion(SourceProductionContext context, string version)
     {
-        var version = symbol.Identity.Version.ToString().TrimEnd('.', '0');
         context.AddSource("ZlibNative.Version.cs", $@"
 namespace NativeSharpZlib;
 
