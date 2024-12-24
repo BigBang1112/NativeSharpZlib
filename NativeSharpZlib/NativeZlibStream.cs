@@ -125,9 +125,17 @@ public partial class NativeZlibStream : Stream
         }
     }
 
-    public override void Flush()
+    [Zomp.SyncMethodGenerator.CreateSyncVersion]
+    public override async Task FlushAsync(CancellationToken cancellationToken)
     {
-        
+        if (mode == CompressionMode.Compress)
+        {
+            if (uncompressedIndex > 0)
+            {
+                await CompressBufferAsync(cancellationToken);
+            }
+            await FlushDeflateOutputAsync(flushFinalBlock: false, cancellationToken);
+        }
     }
 
     public override long Seek(long offset, SeekOrigin origin)

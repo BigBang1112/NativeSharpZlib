@@ -36,4 +36,34 @@ public class ZlibTests
         var read = await zlibStream2.ReadAsync(buffer);
         Assert.Equal(data, buffer.Take(read));
     }
+
+    [Fact]
+    public void TestFlush()
+    {
+        using var stream = new MemoryStream();
+        var data = Encoding.UTF8.GetBytes("Hello, World!");
+        using var zlibStream = new NativeZlibStream(stream, CompressionMode.Compress, leaveOpen: true);
+        zlibStream.Write(data, 0, data.Length);
+        zlibStream.Flush();
+        stream.Position = 0;
+        using var zlibStream2 = new NativeZlibStream(stream, CompressionMode.Decompress, leaveOpen: true);
+        var buffer = new byte[256];
+        var read = zlibStream2.Read(buffer);
+        Assert.Equal(data, buffer.Take(read));
+    }
+
+    [Fact]
+    public async Task TestFlushAsync()
+    {
+        await using var stream = new MemoryStream();
+        var data = Encoding.UTF8.GetBytes("Hello, World!");
+        await using var zlibStream = new NativeZlibStream(stream, CompressionMode.Compress, leaveOpen: true);
+        await zlibStream.WriteAsync(data);
+        await zlibStream.FlushAsync();
+        stream.Position = 0;
+        await using var zlibStream2 = new NativeZlibStream(stream, CompressionMode.Decompress, leaveOpen: true);
+        var buffer = new byte[256];
+        var read = await zlibStream2.ReadAsync(buffer);
+        Assert.Equal(data, buffer.Take(read));
+    }
 }
