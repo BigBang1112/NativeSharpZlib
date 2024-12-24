@@ -1,0 +1,78 @@
+name: Test zlib build
+
+on:
+  workflow_call:
+    inputs:
+      zlib_version:
+        required: true
+        type: string
+      upload_package:
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  build-zlib:
+    name: Build zlib ${{ inputs.zlib_version }}
+    uses: ./.github/workflows/build-zlib.yml
+    with:
+      zlib_version: ${{ inputs.zlib_version }}
+
+  build-and-test:
+    needs: build-zlib
+
+    name: Build and Test
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download zlib build
+      uses: actions/download-artifact@v4
+      with:
+        path: runtimes
+        merge-multiple: true
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          9.0.x
+          8.0.x
+          6.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build -c Release --no-restore -p:ContinuousIntegrationBuild=true -p:ZlibVersion=${{ inputs.zlib_version }}
+
+    - name: Copy native lib to test project (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        for version in 9.0 8.0 6.0; do
+          cp -r runtimes/linux-x64/native/* "NativeSharpZlib.Tests/bin/Release/net${version}"
+        done
+
+    - name: Copy native lib to test project (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        $versions = @('9.0', '8.0', '6.0')
+        foreach ($version in $versions) {
+          Copy-Item -Path 'runtimes/win-x64/native/*' -Destination "NativeSharpZlib.Tests/bin/Release/net$version" -Recurse
+        }
+
+    - name: Test
+      run: dotnet test -c Release --no-build --verbosity normal --no-build --collect:"XPlat Code Coverage" --results-directory ./coverage
+
+    - name: Upload package
+      if: ${{ inputs.upload_package }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: zlib-${{ inputs.zlib_version }}-${{ matrix.compiler.rid }}
