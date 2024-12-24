@@ -8,9 +8,10 @@ permissions:
 
 jobs:
   build-zlib:
+    name: Build zlib
     uses: ./.github/workflows/build-zlib.yml
     with:
-      zlib_version: 1.2.5
+      zlib_version: ${{ vars.ZLIB_VERSION }}
 
   build-and-test:
     needs: build-zlib
@@ -44,7 +45,7 @@ jobs:
       run: dotnet restore
 
     - name: Build
-      run: dotnet build -c Release --no-restore -p:ContinuousIntegrationBuild=true -p:ZlibVersion=1.2.5
+      run: dotnet build -c Release --no-restore -p:ContinuousIntegrationBuild=true -p:ZlibVersion=${{ vars.ZLIB_VERSION }}
 
     - name: Copy native lib to test project (Linux)
       if: matrix.os == 'ubuntu-latest'
