@@ -1,4 +1,8 @@
 # NativeSharpZlib
+
+[![Nuget](https://img.shields.io/nuget/v/NativeSharpZlib?style=for-the-badge&logo=nuget)](https://www.nuget.org/packages/NativeSharpZlib/)
+[![Code Coverage](https://img.shields.io/badge/Code%20Coverage-91%25-success?style=for-the-badge)](https://github.com/BigBang1112/NativeSharpZlib)
+
 A simple zlib wrapper with NativeAOT support and transparent C lib build.
 
 Another zlib wrapper for C#, as there wasn't one where you'd be able to set concrete de/compress block sizes, which is crucial for decompressing certain encrypted content.
