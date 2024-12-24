@@ -23,11 +23,12 @@ jobs:
 
       - name: Set release information
         run: |
-          gh release edit "${{ github.ref_name }}" -n <<EOF
+          gh release edit "${{ github.ref_name }}" -n "$(cat <<EOF
           ***[Release is being automatically created, please wait...](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})***
         
           ${{ github.event.release.body }}
           EOF
+          )"
 
   build-and-test:
     needs: prepare-description
@@ -83,8 +84,9 @@ jobs:
           
       - name: Set release information
         run: |
-          gh release edit "${{ github.ref_name }}" -n <<EOF
+          gh release edit "${{ github.ref_name }}" -n "$(cat <<EOF
           ${{ github.event.release.body }}
 
           Assets were automatically generated using the [publish workflow](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
           EOF
+          )"
