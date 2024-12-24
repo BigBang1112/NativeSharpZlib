@@ -1,0 +1,90 @@
+name: Publish NativeSharpZlib package
+
+on:
+  release:
+    types: [ published ]
+
+permissions:
+  contents: write # important for release description edit and asset upload
+  packages: write
+
+jobs:
+  prepare-description:
+    name: Set release description
+    runs-on: ubuntu-latest
+    
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set release information
+        run: |
+          gh release edit "${{ github.ref_name }}" -n <<EOF
+          ***[Release is being automatically created, please wait...](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})***
+        
+          ${{ github.event.release.body }}
+          EOF
+
+  build-and-test:
+    needs: prepare-description
+
+    name: Build zlib ${{ vars.ZLIB_VERSION }} package + test
+    uses: ./.github/workflows/build-zlib-package.yml
+    with:
+      zlib_version: ${{ vars.ZLIB_VERSION }}
+      runs-on: "['ubuntu-latest']"
+      upload_package: true
+  
+  publish:
+    needs: build-and-test
+
+    name: Publish package
+    runs-on: ubuntu-latest
+    
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Download zlib package build
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+        
+      - name: Publish package to nuget.org
+        run: dotnet nuget push *.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: Publish package to github.com
+        run: dotnet nuget push *.nupkg -k ${{ secrets.GITHUB_TOKEN }} -s https://nuget.pkg.github.com/bigbang1112/index.json --skip-duplicate
+
+      - name: Upload package to this release
+        run: gh release upload ${{ github.ref_name }} *.nupkg
+    
+  finalize-description:
+    needs: publish
+          
+    runs-on: ubuntu-latest
+    name: Finalize release description
+          
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          
+      - name: Set release information
+        run: |
+          gh release edit "${{ github.ref_name }}" -n <<EOF
+          ${{ github.event.release.body }}
+
+          Assets were automatically generated using the [publish workflow](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+          EOF

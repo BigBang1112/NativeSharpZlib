@@ -1,4 +1,9 @@
 # NativeSharpZlib
+
+[![Nuget](https://img.shields.io/nuget/v/NativeSharpZlib?style=for-the-badge&logo=nuget)](https://www.nuget.org/packages/NativeSharpZlib/)
+[![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/BigBang1112/NativeSharpZlib?include_prereleases&style=for-the-badge&logo=github)](https://github.com/BigBang1112/NativeSharpZlib/releases)
+[![Code Coverage](https://img.shields.io/badge/Code%20Coverage-91%25-success?style=for-the-badge)](https://github.com/BigBang1112/NativeSharpZlib)
+
 A simple zlib wrapper with NativeAOT support and transparent C lib build.
 
 Another zlib wrapper for C#, as there wasn't one where you'd be able to set concrete de/compress block sizes, which is crucial for decompressing certain encrypted content.
@@ -20,7 +25,7 @@ using var ms = new MemoryStream();
 using (var compressStream = new NativeZlibStream(ms, CompressionMode.Compress, leaveOpen: true))
 {
     compressStream.Write(data, 0, data.Length);
-} // Flush doesn't work correctly yet, has to be disposed to flush.
+}
 
 ms.Position = 0;
 

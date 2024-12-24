@@ -1,4 +1,4 @@
-name: Test zlib build
+name: CI
 
 on:
   push:
@@ -13,7 +13,8 @@ permissions:
 
 jobs:
   build-and-test:
-    name: Build zlib ${{ vars.ZLIB_VERSION }} package
+    name: Build zlib ${{ vars.ZLIB_VERSION }} package + test
     uses: ./.github/workflows/build-zlib-package.yml
     with:
       zlib_version: ${{ vars.ZLIB_VERSION }}
+      runs-on: "['ubuntu-latest', 'windows-latest']"
