@@ -18,9 +18,9 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <TargetFrameworks>net9.0;net8.0;net6.0;netstandard2.0</TargetFrameworks>
+        <TargetFrameworks>net9.0;net9.0-windows;net8.0;net8.0-windows;net6.0;net6.0-windows</TargetFrameworks>
         <LangVersion>12</LangVersion>
-        <RuntimeIdentifiers>win-x64;win-x86;linux-x64;linux-arm;linux-arm64;browser-wasm</RuntimeIdentifiers>
+        
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsTrimmable Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">true</IsTrimmable>
@@ -38,8 +38,13 @@
         <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     </PropertyGroup>
 
-    <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+    <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0-windows' OR '$(TargetFramework)' == 'net8.0-windows' OR '$(TargetFramework)' == 'net6.0-windows'">
+        <RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>
         <DefineConstants>WINDOWS</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0' OR '$(TargetFramework)' == 'net8.0' OR '$(TargetFramework)' == 'net6.0'">
+        <RuntimeIdentifiers>linux-x64;linux-arm;linux-arm64;browser-wasm</RuntimeIdentifiers>
     </PropertyGroup>
 
     <ItemGroup>
