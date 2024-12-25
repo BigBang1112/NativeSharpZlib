@@ -3,10 +3,10 @@ name: CI
 on:
   push:
     branches: [ "main", "dev" ]
-    paths: [ ".github/workflows/ci.yml", "NativeSharpZlib/**", "NativeSharpZlib.Generators/**", "NativeSharpZlib.Tests/**", "NativeSharpZlib.sln" ]
+    paths: [ ".github/workflows/*.yml", "NativeSharpZlib/**", "NativeSharpZlib.Generators/**", "NativeSharpZlib.Tests/**", "NativeSharpZlib.sln" ]
   pull_request:
     branches: [ "main", "dev" ]
-    paths: [ ".github/workflows/ci.yml", "NativeSharpZlib/**", "NativeSharpZlib.Generators/**", "NativeSharpZlib.Tests/**", "NativeSharpZlib.sln" ]
+    paths: [ ".github/workflows/*.yml", "NativeSharpZlib/**", "NativeSharpZlib.Generators/**", "NativeSharpZlib.Tests/**", "NativeSharpZlib.sln" ]
 
 permissions:
   contents: read
