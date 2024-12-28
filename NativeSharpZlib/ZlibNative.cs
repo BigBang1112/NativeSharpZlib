@@ -114,7 +114,7 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
     private static extern Status inflateEnd(ref ZStream stream);
 #endif
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     internal struct ZStream
     {
         public IntPtr next_in;
