@@ -114,23 +114,19 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
     private static extern Status inflateEnd(ref ZStream stream);
 #endif
 
-#if BROWSER
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-#else
     [StructLayout(LayoutKind.Sequential)]
-#endif
     internal struct ZStream
     {
         public IntPtr next_in;
         public int avail_in;
-#if WINDOWS
+#if WINDOWS || BROWSER1_0_OR_GREATER
         public uint total_in;
 #else
         public ulong total_in;
 #endif
         public IntPtr next_out;
         public int avail_out;
-#if WINDOWS
+#if WINDOWS || BROWSER1_0_OR_GREATER
         public uint total_out;
 #else
         public ulong total_out;
@@ -141,7 +137,7 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
         public IntPtr zfree;
         public IntPtr opaque;
         public int data_type;
-#if WINDOWS
+#if WINDOWS || BROWSER1_0_OR_GREATER
         public uint adler;
         public uint reserved;
 #else

@@ -13,7 +13,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>0.2.4</Version>
+        <Version>0.2.5</Version>
         <ZlibVersion>1.2.5</ZlibVersion>
     </PropertyGroup>
 
@@ -40,12 +40,10 @@
 
     <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0-windows' OR '$(TargetFramework)' == 'net8.0-windows' OR '$(TargetFramework)' == 'net6.0-windows'">
         <RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>
-        <DefineConstants>WINDOWS</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0-browser' OR '$(TargetFramework)' == 'net8.0-browser'">
         <RuntimeIdentifiers>browser-wasm</RuntimeIdentifiers>
-        <DefineConstants>BROWSER</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0' OR '$(TargetFramework)' == 'net8.0' OR '$(TargetFramework)' == 'net6.0'">
