@@ -54,6 +54,7 @@
     <ItemGroup>
         <None Include="README.md" Pack="true" PackagePath="\" />
         <None Include="..\runtimes\**" Pack="True" PackagePath="runtimes\" />
+        <None Include="build\NativeSharpZlib.targets" Pack="true" PackagePath="build\" />
     </ItemGroup>
 
     <ItemGroup>
