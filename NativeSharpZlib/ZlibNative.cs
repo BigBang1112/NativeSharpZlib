@@ -119,14 +119,14 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
     {
         public IntPtr next_in;
         public int avail_in;
-#if ULONG32BIT
+#if WINDOWS
         public uint total_in;
 #else
         public ulong total_in;
 #endif
         public IntPtr next_out;
         public int avail_out;
-#if ULONG32BIT
+#if WINDOWS
         public uint total_out;
 #else
         public ulong total_out;
@@ -137,7 +137,7 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
         public IntPtr zfree;
         public IntPtr opaque;
         public int data_type;
-#if ULONG32BIT
+#if WINDOWS
         public uint adler;
         public uint reserved;
 #else
