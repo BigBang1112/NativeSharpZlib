@@ -91,7 +91,7 @@ jobs:
     - name: Build zlib-${{ inputs.zlib_version }}
       if: steps.cache-zlib.outputs.cache-hit != 'true'
       run: |
-        cmake -B build/${{ matrix.compiler.target }} -S zlib-${{ inputs.zlib_version }}/ -G Ninja -DBUILD_SHARED_LIBS=ON
+        cmake -B build/${{ matrix.compiler.target }} -S zlib-${{ inputs.zlib_version }}/ -G Ninja -DBUILD_SHARED_LIBS=ON -DCMAKE_C_FLAGS="-Dulong=uint64_t"
         ninja -C build/${{ matrix.compiler.target }} zlib
         mkdir -p runtimes/${{ matrix.compiler.rid }}/native
         cp build/${{ matrix.compiler.target }}/${{ matrix.compiler.src }} runtimes/${{ matrix.compiler.rid }}/native/${{ matrix.compiler.dst }}
