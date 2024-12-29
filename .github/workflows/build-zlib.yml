@@ -66,7 +66,7 @@ jobs:
         - {target: linux-x64, src: libz.so, dst: zlib.so, rid: linux-x64}
         - {target: linux-armv6, src: libz.so, dst: zlib.so, rid: linux-arm}
         - {target: linux-arm64, src: libz.so, dst: zlib.so, rid: linux-arm64}
-        - {target: web-wasm, src: libz.a, dst: zlib.a, rid: browser-wasm}
+        - {target: web-wasm:20241110-43b2dd1, src: libz.a, dst: zlib.a, rid: browser-wasm}
 
     container:
       image: dockcross/${{ matrix.compiler.target }}
