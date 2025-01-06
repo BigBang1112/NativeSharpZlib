@@ -13,7 +13,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>0.2.6</Version>
+        <Version>0.2.7</Version>
         <ZlibVersion>1.2.5</ZlibVersion>
     </PropertyGroup>
 
