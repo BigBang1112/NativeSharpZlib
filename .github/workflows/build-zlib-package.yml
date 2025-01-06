@@ -70,7 +70,7 @@ jobs:
         $versions = @('9.0', '8.0', '6.0')
         foreach ($version in $versions) {
           Copy-Item -Path 'runtimes/win-x64/native/*' -Destination "NativeSharpZlib.Tests/bin/Release/net$version-windows" -Recurse
-          dotnet test -c Release --no-build --verbosity normal --no-build --collect:"XPlat Code Coverage" --results-directory ./coverage
+          dotnet test -c Release --no-build --verbosity normal --no-build --collect:"XPlat Code Coverage" --results-directory ./coverage -f net$version
         }
     
     - name: Code Coverage Report
