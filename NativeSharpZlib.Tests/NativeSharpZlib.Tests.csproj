@@ -1,20 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net9.0;net9.0-windows;net8.0;net8.0-windows;net6.0;net6.0-windows</TargetFrameworks>
+        <TargetFrameworks>net9.0;net8.0;net6.0;</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0-windows' OR '$(TargetFramework)' == 'net8.0-windows' OR '$(TargetFramework)' == 'net6.0-windows'">
-        <RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0' OR '$(TargetFramework)' == 'net8.0' OR '$(TargetFramework)' == 'net6.0'">
-        <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
     </PropertyGroup>
 
     <ItemGroup>

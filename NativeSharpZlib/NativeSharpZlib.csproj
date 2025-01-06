@@ -18,7 +18,8 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <TargetFrameworks>net9.0;net9.0-windows;net9.0-browser;net8.0;net8.0-windows;net8.0-browser;net6.0;net6.0-windows</TargetFrameworks>
+        <TargetFrameworks>net9.0;net8.0;net6.0</TargetFrameworks>
+        <RuntimeIdentifiers>win-x64;win-x86;linux-x64;linux-arm;linux-arm64;browser-wasm</RuntimeIdentifiers>
         <LangVersion>12</LangVersion>
         
         <ImplicitUsings>enable</ImplicitUsings>
@@ -36,18 +37,6 @@
 
         <GenerateDocumentationFile>false</GenerateDocumentationFile>
         <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0-windows' OR '$(TargetFramework)' == 'net8.0-windows' OR '$(TargetFramework)' == 'net6.0-windows'">
-        <RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0-browser' OR '$(TargetFramework)' == 'net8.0-browser'">
-        <RuntimeIdentifiers>browser-wasm</RuntimeIdentifiers>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0' OR '$(TargetFramework)' == 'net8.0' OR '$(TargetFramework)' == 'net6.0'">
-        <RuntimeIdentifiers>linux-x64;linux-arm;linux-arm64;browser-wasm</RuntimeIdentifiers>
     </PropertyGroup>
 
     <ItemGroup>
