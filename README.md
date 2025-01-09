@@ -18,25 +18,7 @@ Supported runtimes:
 - `linux-arm64`
 - `browser-wasm`
 
-## Cross-platform caveats
-
-When cross-compiling zlib, the `z_stream` struct becomes different size per platform, due to usage of `uLong` which is 4 bytes on Windows and WebAssembly. Therefore, the project had to be split to `netX.0-windows`, `netX.0-browser`, and `netX.0`. To use this package on Windows or WebAssembly, you must specify the platform-specific framework in your project (you can still multi-target though).
-
-Be aware that this **does not currently work at all for Blazor Web App** project type, due to the `.Client` part not supporting multitargetting. You can use it only on standalone Blazor WebAssembly once specifying `netX.0-browser` target framework.
-
-Also in case of Blazor, you may also need to add this NuGet package explicitly to the running project, even when it has been referenced by a different NuGet package you're using.
-
 ## Usage
-
-The default `netX.0` is only compatible with UNIX-based OS. You have to multi-target if you want compatibility with Windows:
-
-```xml
-<PropertyGroup>
-    <TargetFrameworks>net9.0-windows;net9.0</TargetFrameworks>
-</PropertyGroup>
-```
-
-Example C# code:
 
 ```cs
 var data = Encoding.UTF8.GetBytes("Hello, World!");
