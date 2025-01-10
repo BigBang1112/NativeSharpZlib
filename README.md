@@ -8,7 +8,7 @@ A simple zlib wrapper with NativeAOT support and transparent C lib build.
 
 Another zlib wrapper for C#, as there wasn't one where you'd be able to set concrete de/compress block sizes, which is crucial for decompressing certain encrypted content.
 
-Current zlib version: **1.2.5** (eventually to be updated)
+Current zlib version: **1.3.1** (eventually to be updated)
 
 Supported runtimes:
 - `win-x64`
@@ -19,6 +19,8 @@ Supported runtimes:
 - `browser-wasm`
 
 ## Usage
+
+**There are known issues with `CopyTo`.**
 
 ```cs
 var data = Encoding.UTF8.GetBytes("Hello, World!");
