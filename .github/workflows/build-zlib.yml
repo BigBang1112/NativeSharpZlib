@@ -91,7 +91,7 @@ jobs:
     - name: Build zlib-${{ inputs.zlib_version }}
       if: steps.cache-zlib.outputs.cache-hit != 'true'
       run: |
-        sed -i '/add_library(zlib SHARED ${ZLIB_SRCS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})/d' zlib-${{ inputs.zlib_version }}/CMakeLists.txt
+        echo "add_subdirectory(zlib EXCLUDE_FROM_ALL)" >> zlib-${{ inputs.zlib_version }}/CMakeLists.txt
         cmake -B build/${{ matrix.compiler.target }} -S zlib-${{ inputs.zlib_version }}/ -G Ninja -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release
         ninja -C build/${{ matrix.compiler.target }} zlibstatic
         mkdir -p runtimes/${{ matrix.compiler.rid }}/native
