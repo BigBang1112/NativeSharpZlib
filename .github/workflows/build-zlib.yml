@@ -92,7 +92,7 @@ jobs:
       if: steps.cache-zlib.outputs.cache-hit != 'true'
       run: |
         cmake -B build/${{ matrix.compiler.target }} -S zlib-${{ inputs.zlib_version }}/ -G Ninja -DBUILD_SHARED_LIBS=ON -D CMAKE_BUILD_TYPE=Release
-        cmake --build build/${{ matrix.compiler.target }} --config Release
+        ninja -C build/${{ matrix.compiler.target }} zlibstatic
         mkdir -p runtimes/${{ matrix.compiler.rid }}/native
         cp build/${{ matrix.compiler.target }}/${{ matrix.compiler.src }} runtimes/${{ matrix.compiler.rid }}/native/${{ matrix.compiler.dst }}
 
