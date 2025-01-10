@@ -91,6 +91,7 @@ jobs:
     - name: Build zlib-${{ inputs.zlib_version }}
       if: steps.cache-zlib.outputs.cache-hit != 'true'
       run: |
+        ./configure
         cmake -B build/${{ matrix.compiler.target }} -S zlib-${{ inputs.zlib_version }}/ -G Ninja -DBUILD_SHARED_LIBS=ON
         ninja -C build/${{ matrix.compiler.target }} zlib
         mkdir -p runtimes/${{ matrix.compiler.rid }}/native
