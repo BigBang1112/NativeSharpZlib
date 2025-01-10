@@ -31,7 +31,6 @@ jobs:
       run: |
         Invoke-WebRequest -Uri "https://github.com/cmake-remake/zlib/archive/refs/heads/develop.tar.gz" -OutFile "zlib.tar.gz"
         tar -xzf zlib.tar.gz
-        rm zlib-develop/zconf.h
 
     - name: Set up CMake
       if: steps.cache-zlib.outputs.cache-hit != 'true'
@@ -85,7 +84,7 @@ jobs:
       if: steps.cache-zlib.outputs.cache-hit != 'true'
       run: |
         wget https://github.com/cmake-remake/zlib/archive/refs/heads/develop.tar.gz
-        tar -xzvf zlib-develop.tar.gz
+        tar -xzvf develop.tar.gz
         rm zlib-develop/zconf.h
 
     - name: Build zlib-${{ inputs.zlib_version }}
