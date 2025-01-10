@@ -29,8 +29,9 @@ jobs:
     - name: Download zlib-${{ inputs.zlib_version }} source
       if: steps.cache-zlib.outputs.cache-hit != 'true'
       run: |
-        Invoke-WebRequest -Uri "https://github.com/cmake-remake/zlib/archive/refs/heads/develop.tar.gz" -OutFile "zlib.tar.gz"
+        Invoke-WebRequest -Uri "https://www.zlib.net/fossils/zlib-${{ inputs.zlib_version }}.tar.gz" -OutFile "zlib.tar.gz"
         tar -xzf zlib.tar.gz
+        rm zlib-${{ inputs.zlib_version }}/zconf.h
 
     - name: Set up CMake
       if: steps.cache-zlib.outputs.cache-hit != 'true'
@@ -41,19 +42,19 @@ jobs:
     - name: Build zlib-${{ inputs.zlib_version }}
       if: steps.cache-zlib.outputs.cache-hit != 'true'
       run: |
-        cd zlib-develop
+        cd zlib-${{ inputs.zlib_version }}
         mkdir build
         cd build
         cmake -G "Visual Studio 17 2022" -A ${{ matrix.compiler.arch }} -DCMAKE_BUILD_TYPE=Release ..
         cmake --build . --config Release
         mkdir -p runtimes/${{ matrix.compiler.rid }}/native
-        cp Release/z.dll runtimes/${{ matrix.compiler.rid }}/native/zlib.dll
+        cp Release/zlib1.dll runtimes/${{ matrix.compiler.rid }}/native/zlib.dll
 
     - name: Upload zlib-${{ inputs.zlib_version }}
       uses: actions/upload-artifact@v4
       with:
         name: zlib-${{ inputs.zlib_version }}-${{ matrix.compiler.rid }}
-        path: zlib-develop/build/runtimes
+        path: zlib-${{ inputs.zlib_version }}/build/runtimes
 
   build-zlib-dockcross:
     name: Build zlib (Linux)
@@ -62,9 +63,9 @@ jobs:
     strategy:
       matrix:
         compiler:
-        - {target: linux-x64, src: libz.a, dst: zlib.a, rid: linux-x64}
-        - {target: linux-armv6, src: libz.a, dst: zlib.a, rid: linux-arm}
-        - {target: linux-arm64, src: libz.a, dst: zlib.a, rid: linux-arm64}
+        - {target: linux-x64, src: libz.so, dst: zlib.so, rid: linux-x64}
+        - {target: linux-armv6, src: libz.so, dst: zlib.so, rid: linux-arm}
+        - {target: linux-arm64, src: libz.so, dst: zlib.so, rid: linux-arm64}
         - {target: "web-wasm:20241110-43b2dd1", src: libz.a, dst: zlib.a, rid: browser-wasm}
 
     container:
@@ -83,14 +84,15 @@ jobs:
     - name: Download and extract zlib-${{ inputs.zlib_version }}
       if: steps.cache-zlib.outputs.cache-hit != 'true'
       run: |
-        wget https://github.com/cmake-remake/zlib/archive/refs/heads/develop.tar.gz
-        tar -xzvf develop.tar.gz
+        wget https://www.zlib.net/fossils/zlib-${{ inputs.zlib_version }}.tar.gz
+        tar -xzvf zlib-${{ inputs.zlib_version }}.tar.gz
+        rm zlib-${{ inputs.zlib_version }}/zconf.h
 
     - name: Build zlib-${{ inputs.zlib_version }}
       if: steps.cache-zlib.outputs.cache-hit != 'true'
       run: |
-        cmake -B build/${{ matrix.compiler.target }} -S zlib-develop/ -G Ninja -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release
-        ninja -C build/${{ matrix.compiler.target }} zlibstatic
+        cmake -B build/${{ matrix.compiler.target }} -S zlib-${{ inputs.zlib_version }}/ -G Ninja -DBUILD_SHARED_LIBS=ON
+        ninja -C build/${{ matrix.compiler.target }} zlib
         mkdir -p runtimes/${{ matrix.compiler.rid }}/native
         cp build/${{ matrix.compiler.target }}/${{ matrix.compiler.src }} runtimes/${{ matrix.compiler.rid }}/native/${{ matrix.compiler.dst }}
 
