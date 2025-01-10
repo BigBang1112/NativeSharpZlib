@@ -29,9 +29,9 @@ jobs:
     - name: Download zlib-${{ inputs.zlib_version }} source
       if: steps.cache-zlib.outputs.cache-hit != 'true'
       run: |
-        Invoke-WebRequest -Uri "https://www.zlib.net/fossils/zlib-${{ inputs.zlib_version }}.tar.gz" -OutFile "zlib.tar.gz"
+        Invoke-WebRequest -Uri "https://github.com/cmake-remake/zlib/archive/refs/heads/develop.tar.gz" -OutFile "zlib.tar.gz"
         tar -xzf zlib.tar.gz
-        rm zlib-${{ inputs.zlib_version }}/zconf.h
+        rm zlib-develop/zconf.h
 
     - name: Set up CMake
       if: steps.cache-zlib.outputs.cache-hit != 'true'
@@ -42,7 +42,7 @@ jobs:
     - name: Build zlib-${{ inputs.zlib_version }}
       if: steps.cache-zlib.outputs.cache-hit != 'true'
       run: |
-        cd zlib-${{ inputs.zlib_version }}
+        cd zlib-develop
         mkdir build
         cd build
         cmake -G "Visual Studio 17 2022" -A ${{ matrix.compiler.arch }} -DCMAKE_BUILD_TYPE=Release ..
@@ -84,15 +84,14 @@ jobs:
     - name: Download and extract zlib-${{ inputs.zlib_version }}
       if: steps.cache-zlib.outputs.cache-hit != 'true'
       run: |
-        wget https://www.zlib.net/fossils/zlib-${{ inputs.zlib_version }}.tar.gz
-        tar -xzvf zlib-${{ inputs.zlib_version }}.tar.gz
-        rm zlib-${{ inputs.zlib_version }}/zconf.h
+        wget https://github.com/cmake-remake/zlib/archive/refs/heads/develop.tar.gz
+        tar -xzvf zlib-develop.tar.gz
+        rm zlib-develop/zconf.h
 
     - name: Build zlib-${{ inputs.zlib_version }}
       if: steps.cache-zlib.outputs.cache-hit != 'true'
       run: |
-        echo "add_subdirectory(zlib-${{ inputs.zlib_version }} EXCLUDE_FROM_ALL)" >> zlib-${{ inputs.zlib_version }}/CMakeLists.txt
-        cmake -B build/${{ matrix.compiler.target }} -S zlib-${{ inputs.zlib_version }}/ -G Ninja -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release
+        cmake -B build/${{ matrix.compiler.target }} -S zlib-develop/ -G Ninja -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release
         ninja -C build/${{ matrix.compiler.target }} zlibstatic
         mkdir -p runtimes/${{ matrix.compiler.rid }}/native
         cp build/${{ matrix.compiler.target }}/${{ matrix.compiler.src }} runtimes/${{ matrix.compiler.rid }}/native/${{ matrix.compiler.dst }}
