@@ -18,7 +18,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <TargetFrameworks>net9.0;net8.0;net6.0</TargetFrameworks>
+        <TargetFrameworks>net9.0;net8.0;net6.0;net462</TargetFrameworks>
         <RuntimeIdentifiers>win-x64;win-x86;linux-x64;linux-arm;linux-arm64;browser-wasm</RuntimeIdentifiers>
         <LangVersion>12</LangVersion>
         
@@ -60,8 +60,7 @@
         </PackageReference>
     </ItemGroup>
 
-    <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-        <PackageReference Include="System.Memory" Version="4.5.5" />
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
         <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
     </ItemGroup>
 </Project>
