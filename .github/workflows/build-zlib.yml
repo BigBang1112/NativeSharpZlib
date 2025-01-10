@@ -47,7 +47,7 @@ jobs:
         cmake -G "Visual Studio 17 2022" -A ${{ matrix.compiler.arch }} -DCMAKE_BUILD_TYPE=Release ..
         cmake --build . --config Release
         mkdir -p runtimes/${{ matrix.compiler.rid }}/native
-        cp Release/zlib.dll runtimes/${{ matrix.compiler.rid }}/native/zlib.dll
+        cp Release/z.dll runtimes/${{ matrix.compiler.rid }}/native/zlib.dll
 
     - name: Upload zlib-${{ inputs.zlib_version }}
       uses: actions/upload-artifact@v4
@@ -85,7 +85,6 @@ jobs:
       run: |
         wget https://github.com/cmake-remake/zlib/archive/refs/heads/develop.tar.gz
         tar -xzvf develop.tar.gz
-        rm zlib-develop/zconf.h
 
     - name: Build zlib-${{ inputs.zlib_version }}
       if: steps.cache-zlib.outputs.cache-hit != 'true'
