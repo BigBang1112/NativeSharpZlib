@@ -18,7 +18,7 @@ permissions:
 jobs:
   build-zlib:
     name: Build zlib ${{ inputs.zlib_version }}
-    uses: ./.github/workflows/build-zlib-ng.yml
+    uses: ./.github/workflows/build-zlib.yml
     with:
       zlib_version: ${{ inputs.zlib_version }}
 
