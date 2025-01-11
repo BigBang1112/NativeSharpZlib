@@ -44,13 +44,13 @@ jobs:
     - name: Build zlib-ng-${{ inputs.zlib_version }}
       if: steps.cache-zlib.outputs.cache-hit != 'true'
       run: |
-        cmake -B build/${{ matrix.compiler.target }} -S zlib-${{ inputs.zlib_version }}/ -G Ninja -DZLIB_COMPAT=ON
+        cmake -B build/${{ matrix.compiler.target }} -S zlib-ng-${{ inputs.zlib_version }}/ -G Ninja -DZLIB_COMPAT=ON
         cmake --build . --config Release
         ctest --verbose -C Release
         mkdir -p runtimes/${{ matrix.compiler.rid }}/native
         cp build/${{ matrix.compiler.target }}/${{ matrix.compiler.src }} runtimes/${{ matrix.compiler.rid }}/native/${{ matrix.compiler.dst }}
 
-    - name: Upload zlib-${{ inputs.zlib_version }}
+    - name: Upload zlib-ng-${{ inputs.zlib_version }}
       uses: actions/upload-artifact@v4
       with:
         name: zlib-${{ inputs.zlib_version }}-${{ matrix.compiler.rid }}
