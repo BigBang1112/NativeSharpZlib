@@ -39,7 +39,7 @@ jobs:
       if: steps.cache-zlib.outputs.cache-hit != 'true'
       run: |
         wget https://github.com/zlib-ng/zlib-ng/archive/refs/tags/${{ inputs.zlib_version }}.tar.gz
-        tar -xzvf zlib-ng-${{ inputs.zlib_version }}.tar.gz
+        tar -xzvf ${{ inputs.zlib_version }}.tar.gz
 
     - name: Build zlib-ng-${{ inputs.zlib_version }}
       if: steps.cache-zlib.outputs.cache-hit != 'true'
