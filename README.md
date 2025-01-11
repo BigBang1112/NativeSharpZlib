@@ -8,7 +8,7 @@ A simple zlib wrapper with NativeAOT support and transparent C lib build.
 
 Another zlib wrapper for C#, as there wasn't one where you'd be able to set concrete de/compress block sizes, which is crucial for decompressing certain encrypted content.
 
-Current zlib version: **1.3.1** (eventually to be updated)
+Current zlib version: **1.2.5.1** (eventually to be updated)
 
 Supported runtimes:
 - `win-x64`
@@ -17,6 +17,22 @@ Supported runtimes:
 - `linux-arm`
 - `linux-arm64`
 - `browser-wasm`
+
+### Why not 1.2.7-1.3.1?
+
+WebAssembly build fails to compile there due to CMake issues:
+
+```
+ninja: error: build.ninja:332: multiple rules generate libz.a
+```
+
+### Why not 1.2.5.2-1.2.6.1?
+
+Windows build fails to compile there due to:
+
+```
+zlib-1.2.5.3\test\example.c(8,10): error C1083: Cannot open include file: 'zlib.h': No such file or directory [D:\a\NativeSharpZlib\NativeSharpZlib\zlib-1.2.5.3\build\example.vcxproj]
+```
 
 ## Usage
 
