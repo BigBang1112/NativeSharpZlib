@@ -44,7 +44,7 @@ jobs:
     - name: Build zlib-ng-${{ inputs.zlib_version }}
       if: steps.cache-zlib.outputs.cache-hit != 'true'
       run: |
-        cmake -B build/${{ matrix.compiler.target }} -S zlib-ng-${{ inputs.zlib_version }}/ -G Ninja -DZLIB_COMPAT=ON -DCMAKE_BUILD_TYPE=Release
+        cmake -B build/${{ matrix.compiler.target }} -S zlib-ng-${{ inputs.zlib_version }}/ -G Ninja -DZLIB_COMPAT=ON -DZLIBNG_TESTS=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release
         ninja -C build/${{ matrix.compiler.target }}
         mkdir -p runtimes/${{ matrix.compiler.rid }}/native
         cp build/${{ matrix.compiler.target }}/${{ matrix.compiler.src }} runtimes/${{ matrix.compiler.rid }}/native/${{ matrix.compiler.dst }}
