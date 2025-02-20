@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   build-and-test:
-    name: Build zlib ${{ vars.ZLIB_NG_VERSION }} package + test
+    name: Build zlib ${{ vars.ZLIB_VERSION }} package + test
     uses: ./.github/workflows/build-zlib-package.yml
     with:
       zlib_version: ${{ vars.ZLIB_VERSION }}
