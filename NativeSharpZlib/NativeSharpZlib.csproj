@@ -20,7 +20,7 @@
     <PropertyGroup>
         <TargetFrameworks>net9.0;net8.0;net6.0;net462</TargetFrameworks>
         <RuntimeIdentifiers>win-x64;win-x86;linux-x64;linux-arm;linux-arm64;browser-wasm</RuntimeIdentifiers>
-        <LangVersion>12</LangVersion>
+        <LangVersion>13</LangVersion>
         
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
