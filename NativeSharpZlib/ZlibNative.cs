@@ -179,7 +179,7 @@ internal sealed partial class ZlibNative(ZlibNative.ZStream stream)
 
         if (stream.msg != IntPtr.Zero)
         {
-            throw new ZlibException($"{status}: {Marshal.PtrToStringAuto(stream.msg)}");
+            throw new ZlibException($"{status}: {Marshal.PtrToStringAnsi(stream.msg)}");
         }
 
         if (status == Status.Z_VERSION_ERROR)
