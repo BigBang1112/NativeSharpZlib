@@ -1,20 +1,12 @@
 ﻿using Microsoft.CodeAnalysis;
-using System.Diagnostics;
 
 namespace NativeSharpZlib.Generators;
 
 [Generator]
 public class FieldsGenerator : IIncrementalGenerator
 {
-    private const bool Debug = false;
-
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        if (Debug && !Debugger.IsAttached)
-        {
-            Debugger.Launch();
-        }
-
         var assemblies = context.AnalyzerConfigOptionsProvider
             .Select((compilation, token) =>
             {

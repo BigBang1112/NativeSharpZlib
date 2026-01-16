@@ -3,7 +3,7 @@
         <PackageId>NativeSharpZlib</PackageId>
         <Authors>BigBang1112</Authors>
         <Description>Wrap of the zlib library with NativeAOT and transparent C library build.</Description>
-        <Copyright>Copyright (c) 2024 Petr Pivoňka</Copyright>
+        <Copyright>Copyright (c) 2026 Petr Pivoňka</Copyright>
         <PackageProjectUrl>https://github.com/BigBang1112/NativeSharpZlib</PackageProjectUrl>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageTags>zlib, nativesharpzlib, nativeaot, c</PackageTags>
@@ -13,19 +13,19 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>0.2.8</Version>
+        <Version>0.2.9</Version>
         <ZlibVersion>1.2.5.1</ZlibVersion>
     </PropertyGroup>
 
     <PropertyGroup>
-        <TargetFrameworks>net9.0;net8.0;net6.0;net462</TargetFrameworks>
+        <TargetFrameworks>net10.0;net9.0;net8.0;net472</TargetFrameworks>
         <RuntimeIdentifiers>win-x64;win-x86;linux-x64;linux-arm;linux-arm64;browser-wasm</RuntimeIdentifiers>
-        <LangVersion>12</LangVersion>
+        <LangVersion>14</LangVersion>
         
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <IsTrimmable Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">true</IsTrimmable>
-        <IsAotCompatible Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net7.0'))">true</IsAotCompatible>
+        <IsTrimmable>true</IsTrimmable>
+        <IsAotCompatible>true</IsAotCompatible>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -46,7 +46,8 @@
     <ItemGroup>
         <None Include="README.md" Pack="true" PackagePath="\" />
         <None Include="..\runtimes\**" Pack="True" PackagePath="runtimes\" />
-        <None Include="build\NativeSharpZlib.targets" Pack="true" PackagePath="build\" />
+        <None Include="buildTransitive\NativeSharpZlib.targets" Pack="true" PackagePath="buildTransitive\NativeSharpZlib.targets" />
+        <None Include="buildTransitive\NativeSharpZlib.targets" Pack="true" PackagePath="build\NativeSharpZlib.targets" />
     </ItemGroup>
 
     <ItemGroup>
@@ -54,13 +55,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Zomp.SyncMethodGenerator" Version="1.4.15">
+        <PackageReference Include="Zomp.SyncMethodGenerator" Version="2.0.7">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
 
-    <ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
-        <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
+        <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.6.3" />
     </ItemGroup>
 </Project>

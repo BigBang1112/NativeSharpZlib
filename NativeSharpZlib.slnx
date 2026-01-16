@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/.github/" />
+  <Folder Name="/.github/workflows/">
+    <File Path=".github/workflows/build-zlib-ng.yml" />
+    <File Path=".github/workflows/build-zlib-package.yml" />
+    <File Path=".github/workflows/build-zlib.yml" />
+    <File Path=".github/workflows/ci.yml" />
+    <File Path=".github/workflows/publish.yml" />
+  </Folder>
+  <Folder Name="/Položky řešení/">
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="NativeSharpZlib.Generators/NativeSharpZlib.Generators.csproj" />
+  <Project Path="NativeSharpZlib.Tests/NativeSharpZlib.Tests.csproj" />
+  <Project Path="NativeSharpZlib/NativeSharpZlib.csproj" />
+</Solution>
