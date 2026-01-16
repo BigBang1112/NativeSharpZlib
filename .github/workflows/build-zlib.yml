@@ -45,7 +45,7 @@ jobs:
         cd zlib-${{ inputs.zlib_version }}
         mkdir build
         cd build
-        cmake -G "Visual Studio 17 2022" -A ${{ matrix.compiler.arch }} -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_BUILD_TYPE=Release ..
+        cmake -G "Visual Studio 17 2022" -A ${{ matrix.compiler.arch }} -DCMAKE_POLICY_VERSION_MINIMUM="3.5" -DCMAKE_BUILD_TYPE=Release ..
         cmake --build . --config Release
         mkdir -p runtimes/${{ matrix.compiler.rid }}/native
         cp Release/zlib1.dll runtimes/${{ matrix.compiler.rid }}/native/zlib.dll
