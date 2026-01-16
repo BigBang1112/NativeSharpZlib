@@ -61,7 +61,7 @@
         </PackageReference>
     </ItemGroup>
 
-    <ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
         <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.6.3" />
     </ItemGroup>
 </Project>
