@@ -15,6 +15,7 @@ jobs:
     
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      RELEASE_BODY: ${{ github.event.release.body }}
     
     steps:
       - uses: actions/checkout@v4
@@ -23,12 +24,10 @@ jobs:
 
       - name: Set release information
         run: |
-          gh release edit "${{ github.ref_name }}" -n "$(cat <<EOF
-          ***[Release is being automatically created, please wait...](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})***
-        
-          ${{ github.event.release.body }}
-          EOF
-          )"
+          FINAL_BODY="***[Release is being automatically created, please wait...](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})***
+          
+          $RELEASE_BODY"
+          gh release edit ${{ github.ref_name }} -n "$FINAL_BODY"
 
   build-and-test:
     needs: prepare-description
@@ -76,6 +75,7 @@ jobs:
           
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      RELEASE_BODY: ${{ github.event.release.body }}
           
     steps:
       - uses: actions/checkout@v4
@@ -84,9 +84,7 @@ jobs:
           
       - name: Set release information
         run: |
-          gh release edit "${{ github.ref_name }}" -n "$(cat <<EOF
-          ${{ github.event.release.body }}
-
-          Assets were automatically generated using the [publish workflow](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
-          EOF
-          )"
+          FINAL_BODY="$RELEASE_BODY
+          
+          Assets were automatically generated using the [publish workflow](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})."
+          gh release edit ${{ github.ref_name }} -n "$FINAL_BODY"
